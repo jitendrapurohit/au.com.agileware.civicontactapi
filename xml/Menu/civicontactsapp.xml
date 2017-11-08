@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/contact/view/qrcode</path>
+    <page_callback>CRM_Civicontactsapp_Page_QRCode</page_callback>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/contact/generate/qrcode</path>
+    <page_callback>CRM_Civicontactsapp_Page_GenerateQRCode</page_callback>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
