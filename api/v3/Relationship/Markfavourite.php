@@ -48,10 +48,30 @@ function civicrm_api3_relationship_Markfavourite($params) {
 
   $relationshiptype = $relationshiptype["values"][0];
 
+  $deviceIDKey = "custom_".CRM_Core_BAO_CustomField::getCustomFieldID("Device_ID", "CCA_Relationship_fields");
+  $createdDateKey = "custom_".CRM_Core_BAO_CustomField::getCustomFieldID("Created_Date", "CCA_Relationship_fields");
+
+  $deviceid = "";
+  if(isset($params[$deviceIDKey])) {
+    $deviceid = $params[$deviceIDKey];
+  }
+
+  $relation = civicrm_api3('Relationship', 'get', array(
+    'contact_id_a'         => $contact_id_a,
+    'contact_id_b'         => $contact_id_b,
+    'relationship_type_id' => $relationshiptype["id"],
+  ));
+
+  if($relation["count"] > 0) {
+    throw new API_Exception('Duplicate relationship found between '.$contact_id_a.' and '.$contact_id_b, 405);
+  }
+
   $relation = civicrm_api3('Relationship', 'create', array(
     'contact_id_a'         => $contact_id_a,
     'contact_id_b'         => $contact_id_b,
     'relationship_type_id' => $relationshiptype["id"],
+    $createdDateKey        => date('Y-m-d H:i:s'),
+    $deviceIDKey           => $deviceid,
   ));
 
   return $relation;
