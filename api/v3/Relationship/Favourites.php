@@ -27,7 +27,6 @@ function _civicrm_api3_relationship_Favourites_spec(&$spec) {
  */
 function civicrm_api3_relationship_Favourites($params) {
   $contactID = $params["contact_id"];
-  $createdDateKey = "custom_".CRM_Core_BAO_CustomField::getCustomFieldID("Created_Date", "CCA_Relationship_fields");
 
   $sequential = 0;
   if(isset($params["sequential"]) && $params["sequential"]) {
@@ -45,10 +44,8 @@ function civicrm_api3_relationship_Favourites($params) {
       'contact_id_a'         => $contactID,
       'relationship_type_id' => $relationshiptype["id"],
       'sequential'           => $sequential,
+      'options'              => array('sort' => "id DESC"),
     );
-    if(isset($params[$createdDateKey])) {
-      $apiparams[$createdDateKey] = $params[$createdDateKey];
-    }
     $relation = civicrm_api3('Relationship', 'get', $apiparams);
     return $relation;
   }
