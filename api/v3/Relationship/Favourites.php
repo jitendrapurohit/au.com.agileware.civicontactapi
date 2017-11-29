@@ -47,6 +47,8 @@ function civicrm_api3_relationship_Favourites($params) {
       'options'              => array('sort' => "id DESC"),
     );
     $relation = civicrm_api3('Relationship', 'get', $apiparams);
+    $currentDateTime = new \DateTime();
+    $relation["timestamp"] = $currentDateTime->format("Y-m-d H:i:s");
     return $relation;
   }
 
