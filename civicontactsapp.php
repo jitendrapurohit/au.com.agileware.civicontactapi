@@ -152,3 +152,19 @@ function civicontactsapp_civicrm_tabset($tabsetName, &$tabs, $context) {
     }
   }
 }
+
+/**
+ * Implements hook_civicrm_post().
+ */
+function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  if($objectName == "GroupContact") {
+    $contactid = $objectRef[0];
+    if($op == "delete" || $op == "create") {
+      civicrm_api3('CCAGroupContactsLog', 'create', array(
+        'groupid'   => $objectId,
+        'contactid' => $contactid,
+        'action'    => $op,
+      ));
+    }
+  }
+}
