@@ -16,6 +16,12 @@ class CRM_Civicontactsapp_Page_QRCode extends CRM_Core_Page {
       CRM_Core_Error::fatal(ts('Required cid parameter is invalid.'));
     }
 
+    $session = CRM_Core_Session::singleton();
+    $isMe = ($contactID == $session->get('userID'));
+    if(!$isMe) {
+      throw new \Civi\API\Exception\UnauthorizedException('You\'re not authorized to view this page.');
+    }
+
     if(!$contact->api_key) {
       $api_key = md5($contact->id.rand(100000,999999).time());
       $contact->api_key = $api_key;

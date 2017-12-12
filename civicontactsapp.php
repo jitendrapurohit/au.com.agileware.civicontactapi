@@ -129,26 +129,28 @@ function civicontactsapp_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) 
 function civicontactsapp_civicrm_tabset($tabsetName, &$tabs, $context) {
   if($tabsetName == "civicrm/contact/view") {
     if (!empty($context)) {
+      $session = CRM_Core_Session::singleton();
       $contactID = $context["contact_id"];
-      $tabscount = count($tabs);
+      $isMe = ($contactID == $session->get('userID'));
 
-      if(isset($tabs[$tabscount - 1]["weight"])) {
-        $weight = ($tabs[$tabscount - 1]["weight"]) + 10;
-      } else {
-        $weight = ($tabscount+1) * 10;
+      if($isMe) {
+        $tabscount = count($tabs);
+        if(isset($tabs[$tabscount - 1]["weight"])) {
+          $weight = ($tabs[$tabscount - 1]["weight"]) + 10;
+        } else {
+          $weight = ($tabscount+1) * 10;
+        }
+        $url = CRM_Utils_System::url( 'civicrm/contact/view/qrcode', "cid=$contactID");
+        $tab = array(
+          'title'   => ts('CCA QR Code'),
+          'url'    => $url,
+          'valid'   => 1,
+          'active'  => 1,
+          'weight'  => $weight,
+          'current' => false,
+        );
+        $tabs[] = $tab;
       }
-
-      $url = CRM_Utils_System::url( 'civicrm/contact/view/qrcode', "cid=$contactID");
-      $tab = array(
-        'title'   => ts('CCA QR Code'),
-        'url'    => $url,
-        'valid'   => 1,
-        'active'  => 1,
-        'weight'  => $weight,
-        'current' => false,
-      );
-
-      $tabs[] = $tab;
     }
   }
 }
