@@ -116,6 +116,9 @@ function getContacts($bycontactids = FALSE, $contactids = array()) {
     $group_ids = array_column($group_ids["values"], 'id');
     $contactparams["group"] = array('IN' => $group_ids);
   } else {
+    if(count($contactids) == 0) {
+      $contactids[] = "0";
+    }
     $contactparams["id"] = array('IN' => $contactids);
   }
 
