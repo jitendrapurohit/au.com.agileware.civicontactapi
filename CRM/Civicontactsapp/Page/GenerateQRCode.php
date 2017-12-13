@@ -23,6 +23,7 @@ class CRM_Civicontactsapp_Page_GenerateQRCode extends CRM_Core_Page {
 
     $qr_code_pay_load = array(
       "contact_id"                => $contactID,
+      "contact_name"              => $contact->display_name,
       "api_key"                   => $contact->api_key,
       "site_key"                  => CIVICRM_SITE_KEY,
       "rest_end_point"            => $restendpoint,

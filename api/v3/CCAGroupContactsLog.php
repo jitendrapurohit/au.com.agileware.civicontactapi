@@ -108,16 +108,21 @@ function getContacts($bycontactids = FALSE, $contactids = array()) {
       'name' => "Sync_to_CCA",
     ));
     $cca_sync_custom_id = $customfield_result["id"];
-    $group_ids = civicrm_api3('Group', 'get', array(
+    $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
+    $group_params = array(
       'sequential' => 1,
       'return' => array("id"),
-      'custom_20' => 1,
-    ));
+      $cca_sync_custom_key => 1,
+    );
+    $group_ids = civicrm_api3('Group', 'get', $group_params);
     $group_ids = array_column($group_ids["values"], 'id');
+    if(count($group_ids) == 0) {
+      $group_ids[] = "-1";
+    }
     $contactparams["group"] = array('IN' => $group_ids);
   } else {
     if(count($contactids) == 0) {
-      $contactids[] = "0";
+      $contactids[] = "-1";
     }
     $contactparams["id"] = array('IN' => $contactids);
   }
