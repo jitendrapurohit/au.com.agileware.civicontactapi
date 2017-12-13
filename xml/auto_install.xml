@@ -4,7 +4,7 @@
   <CustomGroups>
     <CustomGroup>
       <name>CCA_Group_Settings</name>
-      <title>CCA Group Settings</title>
+      <title>Contact App Group Settings</title>
       <extends>Group</extends>
       <style>Inline</style>
       <collapse_display>0</collapse_display>
@@ -22,7 +22,7 @@
   <CustomFields>
     <CustomField>
       <name>Sync_to_CCA</name>
-      <label>Sync to CCA</label>
+      <label>Sync to Contact App</label>
       <data_type>String</data_type>
       <html_type>CheckBox</html_type>
       <default_value></default_value>
@@ -45,7 +45,7 @@
   <OptionGroups>
     <OptionGroup>
       <name>sync_to_cca</name>
-      <title>Sync to CCA</title>
+      <title>Sync to Contact App</title>
       <is_reserved>1</is_reserved>
       <is_active>1</is_active>
     </OptionGroup>
