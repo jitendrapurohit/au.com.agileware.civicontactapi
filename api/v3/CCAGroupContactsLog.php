@@ -65,10 +65,31 @@ function civicrm_api3_c_c_a_group_contacts_log_create($params) {
  */
 function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
   if(isset($params["createdat"]) && isset($params["createdat"][">="]) && $params["createdat"][">="] != "") {
-    $groupcontactlogs = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
+
+    $groupslog = civicrm_api3('CCAGroupsLog', 'get', array(
+      'sequential'    =>  1,
+      'return'        => array("groupid", "action"),
+      'createdat'     => array('>=' => $params["createdat"]),
+      'options'       => array('sort' => "id DESC"),
+    ));
+
+    $uniqueGroups = array();
+    foreach($groupslog["values"] as $grouplog) {
+      if(!array_key_exists($grouplog["groupid"], $uniqueGroups)) {
+        $uniqueGroups[$grouplog["groupid"]] = $grouplog["action"];
+      }
+    }
+
     $contactsfound = array();
+    foreach($uniqueGroups as $groupid => $action) {
+      $contactids = getGroupContacts($groupid);
+      $contactactions = array_fill_keys($contactids, ($action == "on") ? "create" : "delete");
+      $contactsfound = $contactsfound + $contactactions;
+    }
+
+    $groupcontactlogs = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
     foreach($groupcontactlogs["values"] as $groupcontactlog) {
-      if(!in_array($groupcontactlog["contactid"], $contactsfound)) {
+      if(!array_key_exists($groupcontactlog["contactid"], $contactsfound)) {
         $contactsfound[$groupcontactlog["contactid"]] = $groupcontactlog["action"];
       }
     }
@@ -81,14 +102,36 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
   return tagContacts($contacts);
 }
 
+function getGroupContacts($groupid) {
+  $contactids = civicrm_api3('Contact', 'get', array(
+    "groupid"    => $groupid,
+    "return"     => array("id"),
+    "sequential" => 1,
+    "options"    => array("limit" => -1)
+  ));
+
+  $contactids = array_column($contactids["values"], "id");
+  return $contactids;
+}
+
 function tagContacts($contacts, $actions = array()) {
   foreach($contacts["values"] as $index => $contact) {
     $action = "create";
     if(isset($actions[$contact["id"]])) {
       $action = $actions[$contact["id"]];
     }
+
+    if($action == "delete") {
+      $contacts["values"][$index] = array(
+        "id"          => $contacts["values"][$index]["id"],
+        "first_name"  => $contacts["values"][$index]["first_name"],
+        "last_name"   => $contacts["values"][$index]["last_name"],
+      );
+    }
+
     $contacts["values"][$index]["action"] = $action;
   }
+
   return $contacts;
 }
 
@@ -99,6 +142,7 @@ function getContacts($bycontactids = FALSE, $contactids = array()) {
     'return'        => array("first_name","last_name","sort_name","image_URL","created_date","modified_date"),
     'api.Email.get' => array('return' => array("location_type_id", "email")),
     'api.Phone.get' => array('return' => array("phone_type_id", "phone")),
+    'options'       => array('limit'  => -1)
   );
 
   if(!$bycontactids) {

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CRM/Civicontactsapp</base>
+  <class>CCAGroupsLog</class>
+  <name>civicrm_cca_groups_log</name>
+  <add>4.4</add>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>4.4</add>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>groupid</name>
+    <type>int unsigned</type>
+    <comment>FK to Group</comment>
+    <add>4.4</add>
+  </field>
+
+  <field>
+    <name>action</name>
+    <type>varchar</type>
+    <length>10</length>
+    <required>true</required>
+    <add>4.4</add>
+  </field>
+
+  <field>
+    <name>createdat</name>
+    <type>timestamp</type>
+    <required>true</required>
+    <default>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</default>
+    <add>4.4</add>
+  </field>
+
+  <foreignKey>
+    <name>groupid</name>
+    <table>civicrm_group</table>
+    <key>id</key>
+    <add>4.4</add>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+</table>

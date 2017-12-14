@@ -169,4 +169,50 @@ function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) 
       ));
     }
   }
+
+  if($objectName == "Group") {
+    $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
+      'sequential' => 1,
+      'return' => array("id"),
+      'name' => "Sync_to_CCA",
+    ));
+    $cca_sync_custom_id = $customfield_result["id"];
+    $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
+    $group_params = array(
+      'sequential' => 1,
+      'return'     => array("id", $cca_sync_custom_key),
+      'id'         => $objectRef->id
+    );
+    $group_details = civicrm_api3('Group', 'getsingle', $group_params);
+
+    $turnSyncOn = false;
+    if(isset($group_details[$cca_sync_custom_key]) && sizeof($group_details[$cca_sync_custom_key]) > 0 && $group_details[$cca_sync_custom_key][0] == "1") {
+      $turnSyncOn = true;
+    }
+
+    $group_last_log = civicrm_api3('CCAGroupsLog', 'get', array(
+      'sequential' => 1,
+      'groupid'    => $objectRef->id,
+      'options' => array('limit' => 1, 'sort' => "id DESC"),
+    ));
+
+    $addNewLogEntry = true;
+    if($group_last_log["count"] > 0) {
+      $last_log = $group_last_log["values"][0];
+      if($last_log["action"] == "on" && $turnSyncOn) {
+        $addNewLogEntry = false;
+      }
+
+      if($last_log["action"] == "off" && !$turnSyncOn) {
+        $addNewLogEntry = false;
+      }
+    }
+
+    if($addNewLogEntry) {
+      civicrm_api3('CCAGroupsLog', 'create', array(
+        'groupid'  => $objectRef->id,
+        'action'   => ($turnSyncOn) ? 'on' : 'off',
+      ));
+    }
+  }
 }
