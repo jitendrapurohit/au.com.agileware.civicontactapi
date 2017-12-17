@@ -38,8 +38,14 @@ function civicrm_api3_relationship_Favourites($params) {
     "sequential" => 1,
   ));
 
-  if($relationshiptype["count"] > 0) {
+  $relationshiptype = null;
+  if($relationshiptype["count"] == 0) {
+    $relationshiptype = createFavouriteRelationshipType();
+  } else {
     $relationshiptype = $relationshiptype["values"][0];
+  }
+
+  if($relationshiptype != null) {
     $apiparams = array(
       'contact_id_a'         => $contactID,
       'relationship_type_id' => $relationshiptype["id"],
@@ -53,4 +59,25 @@ function civicrm_api3_relationship_Favourites($params) {
   }
 
   throw new API_Exception('Favourites not found for '.$contactID, 404);
+}
+
+
+/**
+ * Create favourite relationship type
+ * @return Array of relationship type values
+ */
+function createFavouriteRelationshipType() {
+  $relationshiptype = civicrm_api3('RelationshipType', 'create', array(
+    "name_a_b"       => "has favourited",
+    "name_b_a"       => "is favourited by",
+    "label_a_b"      => "Has Favourited",
+    "label_b_a"      => "Is Favourited By",
+    "description"    => "Relationship to mark any contact as a favourite of another contact",
+    "contact_type_a" => "Individual",
+    "contact_type_b" => "Individual",
+    "is_active"      => 1,
+    "is_reserved"    => 0,
+    "sequential"     => 1,
+  ));
+  return $relationshiptype;
 }
