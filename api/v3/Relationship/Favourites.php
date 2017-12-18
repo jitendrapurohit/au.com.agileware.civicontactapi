@@ -38,7 +38,6 @@ function civicrm_api3_relationship_Favourites($params) {
     "sequential" => 1,
   ));
 
-  $relationshiptype = null;
   if($relationshiptype["count"] == 0) {
     $relationshiptype = createFavouriteRelationshipType();
   } else {
