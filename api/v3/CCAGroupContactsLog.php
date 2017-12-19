@@ -68,22 +68,26 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
 
     $groupslog = civicrm_api3('CCAGroupsLog', 'get', array(
       'sequential'    =>  1,
-      'return'        => array("groupid", "action"),
+      'return'        => array("groupid", "action", "groupid.name"),
       'createdat'     => array('>=' => $params["createdat"]),
       'options'       => array('sort' => "id DESC"),
     ));
 
     $uniqueGroups = array();
+
     foreach($groupslog["values"] as $grouplog) {
       if(!array_key_exists($grouplog["groupid"], $uniqueGroups)) {
-        $uniqueGroups[$grouplog["groupid"]] = $grouplog["action"];
+        $uniqueGroups[$grouplog["groupid"]] = array(
+          "action"      => $grouplog["action"],
+          "groupname"   => $grouplog["groupid.name"],
+        );
       }
     }
 
     $contactsfound = array();
-    foreach($uniqueGroups as $groupid => $action) {
-      $contactids = getGroupContacts($groupid);
-      $contactactions = array_fill_keys($contactids, ($action == "on") ? "create" : "delete");
+    foreach($uniqueGroups as $groupid => $groupinfo) {
+      $contactids = getGroupContacts($groupinfo["groupname"]);
+      $contactactions = array_fill_keys($contactids, ($groupinfo["action"] == "on") ? "create" : "delete");
       $contactsfound = $contactsfound + $contactactions;
     }
 
@@ -102,9 +106,9 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
   return tagContacts($contacts);
 }
 
-function getGroupContacts($groupid) {
+function getGroupContacts($groupname) {
   $contactids = civicrm_api3('Contact', 'get', array(
-    "groupid"    => $groupid,
+    "group"      => $groupname,
     "return"     => array("id"),
     "sequential" => 1,
     "options"    => array("limit" => -1)
