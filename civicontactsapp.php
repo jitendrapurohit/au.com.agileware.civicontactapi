@@ -76,18 +76,6 @@ function civicontactsapp_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 }
 
 /**
- * Implements hook_civicrm_managed().
- *
- * Generate a list of entities to create/deactivate/delete when this module
- * is installed, disabled, uninstalled.
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
- */
-function civicontactsapp_civicrm_managed(&$entities) {
-  _civicontactsapp_civix_civicrm_managed($entities);
-}
-
-/**
  * Implements hook_civicrm_caseTypes().
  *
  * Generate a list of case-types.
@@ -156,6 +144,41 @@ function civicontactsapp_civicrm_tabset($tabsetName, &$tabs, $context) {
 }
 
 /**
+ * Implements _civicrm_managed().
+ */
+function civicontactsapp_civicrm_managed(&$entities) {
+    $cca_sync_custom_key = getCCASyncCustomFieldKey();
+    $entities[] = array(
+        'module'  => 'au.com.agileware.civicontactsapp',
+        'name'    => 'ccaautogroup',
+        'entity'  => 'Group',
+        'cleanup' => 'never',
+        'params' => array(
+            'version' => 3,
+            'name'    => 'CiviCRM App Contacts',
+            'title'   => 'CiviCRM App Contacts',
+            'description' => "Contacts from CiviCRM application will be added in this group.",
+            'source' => "au.com.agileware.civicontactsapp",
+            'group_type' => "Access Control",
+            'is_reserved' => 1,
+            $cca_sync_custom_key => 1,
+        ),
+    );
+}
+
+function getCCASyncCustomFieldKey() {
+    $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
+        'sequential' => 1,
+        'return' => array("id"),
+        'name' => "Sync_to_CCA",
+    ));
+    $cca_sync_custom_id = $customfield_result["id"];
+    $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
+
+    return $cca_sync_custom_key;
+}
+
+/**
  * Implements hook_civicrm_post().
  */
 function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
@@ -171,13 +194,8 @@ function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) 
   }
 
   if($objectName == "Group") {
-    $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
-      'sequential' => 1,
-      'return' => array("id"),
-      'name' => "Sync_to_CCA",
-    ));
-    $cca_sync_custom_id = $customfield_result["id"];
-    $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
+    $cca_sync_custom_key = getCCASyncCustomFieldKey();
+
     $group_params = array(
       'sequential' => 1,
       'return'     => array("id", $cca_sync_custom_key),
