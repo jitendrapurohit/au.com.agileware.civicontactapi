@@ -145,7 +145,7 @@ function getContacts($bycontactids = FALSE, $contactids = array()) {
     'sequential'    => 1,
     'return'        => array("first_name","last_name","sort_name","image_URL","created_date","modified_date"),
     'api.Email.get' => array('return' => array("location_type_id", "email")),
-    'api.Phone.get' => array('return' => array("phone_type_id", "phone")),
+    'api.Phone.get' => array('return' => array("location_type_id","phone_type_id", "phone")),
     'options'       => array('limit'  => -1)
   );
 
