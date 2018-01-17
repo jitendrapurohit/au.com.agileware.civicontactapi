@@ -143,6 +143,113 @@ function civicontactsapp_civicrm_tabset($tabsetName, &$tabs, $context) {
   }
 }
 
+
+/**
+ * Implements hook_civicrm_postProcess().
+ *
+ * @param string $formName
+ * @param CRM_Core_Form $form
+ */
+function civicontactsapp_civicrm_postProcess($formName, &$form) {
+    if ($formName == "CRM_Group_Form_Edit" && ($form->getAction() == CRM_Core_Action::ADD || $form->getAction() == CRM_Core_Action::UPDATE)) {
+        $teams = $form->getSubmitValue( 'teams' );
+        $teams = explode("," ,$teams);
+        $groupid = $form->getVar("_gid");
+        $submitValues = $form->getSubmitValues();
+
+        if($groupid == "") {
+            $groupid = civicrm_api3('Group', 'get', array(
+                'sequential' => 1,
+                'return' => array("id"),
+                'title' => $submitValues["title"],
+            ));
+
+            if($groupid["count"] > 0) {
+                $groupid = $groupid["values"][0]["id"];
+            }
+        }
+
+        if(!$groupid) {
+            return;
+        }
+
+        foreach($teams as $teamid) {
+            civicrm_api3("TeamEntity","assign", array(
+               "team_id"      => $teamid,
+               "entity_id"    => $groupid,
+               "entity_name"  => "Group"
+            ));
+        }
+
+        civicrm_api3("TeamEntity","unassign", array(
+            "team_id"      => array(
+                "NOT IN" => $teams,
+            ),
+            "entity_id"    => $groupid,
+            "entity_name"  => "Group"
+        ));
+    }
+}
+
+function isCiviTeamsExtensionInstalled() {
+    $entities = civicrm_api3('Entity', 'get', array(
+        'sequential' => 1,
+    ));
+    $entities = $entities["values"];
+    return in_array("Team", $entities);
+}
+
+/**
+ * Implements hook_civicrm_buildForm().
+ *
+ * @param string $formName
+ * @param CRM_Core_Form $form
+ */
+function civicontactsapp_civicrm_buildForm($formName, &$form) {
+    if ($formName == 'CRM_Group_Form_Edit' && ($form->getAction() == CRM_Core_Action::ADD || $form->getAction() == CRM_Core_Action::UPDATE)) {
+        if(isCiviTeamsExtensionInstalled()) {
+            $dbteams = civicrm_api3("Team", "get", array(
+               "is_active" => 1
+            ));
+            $groupid = $form->getVar("_id");
+            $existingteams = civicrm_api3("TeamEntity","get", array(
+               "entity_name" => "Group",
+               "entity_id"   => $groupid,
+               "isactive"    => 1,
+               "return"      => array("team_id"),
+            ));
+
+            $existingteamsids = array();
+            if($groupid != "") {
+                foreach($existingteams["values"] as $existingteam) {
+                    $existingteamsids[] = $existingteam["team_id"];
+                }
+
+                $defaults['teams'] = implode(",", $existingteamsids);
+                $form->setDefaults($defaults);
+            }
+
+            $teams = array();
+            foreach($dbteams["values"] as $dbteam) {
+                $teams[] = array(
+                    "text" => $dbteam["team_name"],
+                    "id" => $dbteam["id"],
+                    "description" => "",
+                    "selected"    => (in_array($dbteam["id"], $existingteamsids)) ? true: false,
+                );
+            }
+            $form->add('select2', 'teams', ts('Teams'), $teams, FALSE, array(
+                'placeholder' => "- Select Teams -",
+                'multiple'    => true,
+                'class'       => "big"
+            ));
+            CRM_Core_Region::instance('page-body')->add(array(
+                'template' => "CRM/Civicontactsapp/Form/teamsfield.tpl"
+            ));
+        }
+    }
+}
+
 /**
  * Implements _civicrm_managed().
  */
@@ -193,7 +300,7 @@ function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) 
     }
   }
 
-  if($objectName == "Group") {
+  if($objectName == "Group" && $op != "delete") {
     $cca_sync_custom_key = getCCASyncCustomFieldKey();
 
     $group_params = array(
@@ -232,5 +339,14 @@ function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) 
         'action'   => ($turnSyncOn) ? 'on' : 'off',
       ));
     }
+  }
+
+  if($objectName == "Group" && $op == "delete") {
+      if(isCiviTeamsExtensionInstalled()) {
+          civicrm_api3("TeamEntity","unassign", array(
+              "entity_id"    => $objectId,
+              "entity_name"  => "Group"
+          ));
+      }
   }
 }
