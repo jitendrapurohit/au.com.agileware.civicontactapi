@@ -387,10 +387,16 @@ function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) 
 
   if($objectName == "Group" && $op == "delete") {
       if(isCiviTeamsExtensionInstalled()) {
-          /*civicrm_api3("TeamEntity","unassign", array(
+          civicrm_api3("TeamEntity","get", array(
               "entity_id"    => $objectId,
-              "entity_table"  => "Group"
-          ));*/
+              "entity_table"  => "civicrm_group",
+              "api.TeamEntity.create" => array(
+                  "id"           => '$value.id',
+                  "entity_id"    => $objectId,
+                  "entity_table" => "civicrm_group",
+                  "isactive"     => 0,
+              ),
+          ));
       }
   }
 }
