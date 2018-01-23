@@ -151,7 +151,7 @@ function civicontactsapp_civicrm_tabset($tabsetName, &$tabs, $context) {
  * @param CRM_Core_Form $form
  */
 function civicontactsapp_civicrm_postProcess($formName, &$form) {
-    if ($formName == "CRM_Group_Form_Edit" && ($form->getAction() == CRM_Core_Action::ADD || $form->getAction() == CRM_Core_Action::UPDATE)) {
+    if ($formName == "CRM_Group_Form_Edit" && isCiviTeamsExtensionInstalled() && ($form->getAction() == CRM_Core_Action::ADD || $form->getAction() == CRM_Core_Action::UPDATE)) {
         $teams = $form->getSubmitValue( 'teams' );
         $teams = explode("," ,$teams);
         $groupid = $form->getVar("_gid");
