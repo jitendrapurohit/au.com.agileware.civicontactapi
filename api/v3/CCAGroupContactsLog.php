@@ -66,26 +66,89 @@ function civicrm_api3_c_c_a_group_contacts_log_create($params) {
 function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
   if(isset($params["createdat"]) && isset($params["createdat"][">="]) && $params["createdat"][">="] != "") {
 
-    $groupslog = civicrm_api3('CCAGroupsLog', 'get', array(
+    $isCiviTeamsInstalled = isCiviTeamsExtensionInstalled();
+
+    $groupslogparams = array(
       'sequential'    =>  1,
       'return'        => array("groupid", "action", "groupid.name"),
-      'createdat'     => array('>=' => $params["createdat"]),
+      'createdat'     => $params["createdat"],
       'options'       => array('sort' => "id DESC"),
-    ));
+    );
 
     $uniqueGroups = array();
+    $logGroupsAdded = array();
+
+    if($isCiviTeamsInstalled) {
+        $teamgroupsToCheck = array();
+        $teamGroupsToDelete = array();
+
+        $teams = getContactTeams();
+        $teamgroups = getTeamGroups($teams, FALSE, $params["createdat"]);
+        $teamgroups = $teamgroups["values"];
+
+        if(count($teamgroups) == 0) {
+            $teamgroups[] = "-1";
+        } else {
+            foreach($teamgroups as $index => $teamgroup) {
+                if($teamgroup["isactive"]) {
+                    $teamgroupsToCheck[] = $teamgroup["entity_id"];
+                    $teamgroups[$index]["isactive"] = "on";
+                } else {
+                    $teamGroupsToDelete[] = $teamgroup["entity_id"];
+                    $teamgroups[$index]["isactive"] = "off";
+                }
+            }
+
+            $activeGroups = getCCAActiveGroups($teamgroupsToCheck, true);
+            foreach($activeGroups as $activeGroup) {
+                if(!array_key_exists($activeGroup["id"], $logGroupsAdded)) {
+                    $uniqueGroups[$activeGroup["id"]] = array(
+                        "action"      => "on",
+                        "groupid"     => $activeGroup["id"],
+                        "groupname"   => $activeGroup["name"],
+                    );
+                }
+            }
+
+            $groupDetails = getGroupDetailsByIds($teamGroupsToDelete);
+            foreach($groupDetails as $groupDetail) {
+                if(!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
+                    $uniqueGroups[$groupDetail["id"]] = array(
+                        "action"      => "off",
+                        "groupid"     => $groupDetail["id"],
+                        "groupname"   => $groupDetail["name"],
+                    );
+                }
+            }
+
+            $uniqueGroupsClone = $uniqueGroups;
+            $uniqueGroups = array();
+
+            foreach($teamgroups as $teamgroup) {
+                if(array_key_exists($teamgroup["entity_id"], $uniqueGroupsClone)) {
+                    $uniqueGroups[] = $uniqueGroupsClone[$teamgroup["entity_id"]];
+                }
+            }
+        }
+        if(count($teamgroupsToCheck)) {
+            $groupslogparams["groupid"] = array("IN" => $teamgroupsToCheck);
+        }
+    }
+
+    $groupslog = civicrm_api3('CCAGroupsLog', 'get', $groupslogparams);
 
     foreach($groupslog["values"] as $grouplog) {
-      if(!array_key_exists($grouplog["groupid"], $uniqueGroups)) {
-        $uniqueGroups[$grouplog["groupid"]] = array(
+      if(!array_key_exists($grouplog["groupid"], $logGroupsAdded)) {
+        $uniqueGroups[] = array(
           "action"      => $grouplog["action"],
+          "groupid"     => $grouplog["groupid"],
           "groupname"   => $grouplog["groupid.name"],
         );
       }
     }
 
     $contactsfound = array();
-    foreach($uniqueGroups as $groupid => $groupinfo) {
+    foreach($uniqueGroups as $index => $groupinfo) {
       $contactids = getGroupContacts($groupinfo["groupname"]);
       $contactactions = array_fill_keys($contactids, ($groupinfo["action"] == "on") ? "create" : "delete");
       $contactsfound = $contactsfound + $contactactions;
@@ -139,21 +202,84 @@ function tagContacts($contacts, $actions = array()) {
   return $contacts;
 }
 
-function getContacts($bycontactids = FALSE, $contactids = array()) {
+function getContactTeams() {
+    $loggedinUserId = CRM_Core_Session::singleton()->getLoggedInContactID();
+    $teams = civicrm_api3('TeamContact', 'get', array(
+        'sequential' => 1,
+        'contact_id' => $loggedinUserId,
+        'return' => array("team_id"),
+        'status' => 1,
+    ));
+    $teams = array_column($teams["values"], "team_id");
+    return $teams;
+}
 
-  $loggedinUserId = CRM_Core_Session::singleton()->getLoggedInContactID();
+function getTeamGroups($teams, $onlyActiveGroups, $updatedat = "") {
+    $params = array(
+        'sequential' => 1,
+        'entity_table' => "civicrm_group",
+        'return' => array("entity_id", "isactive", "date_modified"),
+        'team_id' => array('IN' => $teams),
+        'options' => array('sort' => "date_modified DESC"),
+    );
+    if($updatedat != "") {
+        $params["date_modified"] = $updatedat;
+    }
+    if($onlyActiveGroups) {
+        $params["isactive"] = 1;
+    }
+    $teamGroups = civicrm_api3('TeamEntity', 'get', $params);
+    return $teamGroups;
+}
+
+function getCCACustomKey() {
+    $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
+        'sequential' => 1,
+        'return' => array("id"),
+        'name' => "Sync_to_CCA",
+    ));
+    $cca_sync_custom_id = $customfield_result["id"];
+    $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
+    return $cca_sync_custom_key;
+}
+
+function getGroupDetailsByIds($groupids) {
+    if(count($groupids) == 0) {
+        $groupids = array("-1");
+    }
+    $group_params = array(
+        'sequential' => 1,
+        'return' => array("id", "name"),
+        'id'     => array("IN" => $groupids),
+    );
+    $group_ids = civicrm_api3('Group', 'get', $group_params);
+    return $group_ids["values"];
+}
+
+function getCCAActiveGroups($groupsToCheck = array(), $withName = false) {
+    $cca_sync_custom_key = getCCACustomKey();
+    $group_params = array(
+        'sequential' => 1,
+        'return' => array("id", "name"),
+        $cca_sync_custom_key => 1,
+    );
+    if(count($groupsToCheck)) {
+        $group_params["id"] = array("IN" => $groupsToCheck);
+    }
+    $group_ids = civicrm_api3('Group', 'get', $group_params);
+    if(!$withName) {
+        $group_ids = array_column($group_ids["values"], 'id');
+        return $group_ids;
+    }
+    return $group_ids["values"];
+}
+
+function getContacts($bycontactids = FALSE, $contactids = array()) {
   $isCiviTeamsInstalled = isCiviTeamsExtensionInstalled();
 
   $teams = array();
   if($isCiviTeamsInstalled) {
-    $teams = civicrm_api3('TeamContact', 'get', array(
-      'sequential' => 1,
-      'contact_id' => $loggedinUserId,
-      'return' => array("team_id"),
-      'status' => 1,
-    ));
-
-    $teams = $teams["values"];
+      $teams = getContactTeams();
   }
 
   $contactparams = array(
@@ -170,31 +296,10 @@ function getContacts($bycontactids = FALSE, $contactids = array()) {
         "-1"
       ));
     } else {
-      $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
-        'sequential' => 1,
-        'return' => array("id"),
-        'name' => "Sync_to_CCA",
-      ));
-      $cca_sync_custom_id = $customfield_result["id"];
-      $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
-      $group_params = array(
-        'sequential' => 1,
-        'return' => array("id"),
-        $cca_sync_custom_key => 1,
-      );
-      $group_ids = civicrm_api3('Group', 'get', $group_params);
-      $group_ids = array_column($group_ids["values"], 'id');
+      $group_ids = getCCAActiveGroups();
 
       if($isCiviTeamsInstalled) {
-        $teams = array_column($teams, "team_id");
-        $teamGroups = civicrm_api3('TeamEntity', 'get', array(
-          'sequential' => 1,
-          'entity_table' => "civicrm_group",
-          'return' => array("entity_id"),
-          'isactive' => 1,
-          'team_id' => array('IN' => $teams),
-        ));
-
+        $teamGroups = getTeamGroups($teams, TRUE);
         $teamGroups = array_column($teamGroups["values"], "entity_id");
         $group_ids = array_intersect($group_ids, $teamGroups);
       }
