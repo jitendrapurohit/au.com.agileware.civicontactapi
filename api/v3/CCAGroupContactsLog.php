@@ -83,19 +83,32 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
         $teamGroupsToDelete = array();
 
         $teams = getContactTeams();
-        $teamgroups = getTeamGroups($teams, FALSE, $params["createdat"]);
+        $teamsToRemove = array();
+        $modifiedTeams = getModifiedTeams($params["createdat"]);
+
+        foreach($modifiedTeams["values"] as $modifiedTeam) {
+            if(!$modifiedTeam["status"]) {
+                $teamsToRemove[] = $modifiedTeam["team_id"];
+            }
+        }
+
+        $teamgroups = getTeamGroups($teams, FALSE);
         $teamgroups = $teamgroups["values"];
 
-        if(count($teamgroups) == 0) {
-            $teamgroups[] = "-1";
-        } else {
-            foreach($teamgroups as $index => $teamgroup) {
+        $modifiedteamgroups = getTeamGroups($teams, FALSE, $params["createdat"]);
+        $modifiedteamgroups = $modifiedteamgroups["values"];
+
+        $teamgroupsToRemove = getTeamGroups($teamsToRemove, FALSE);
+        $teamgroupsToRemove = $teamgroupsToRemove["values"];
+
+        if(count($modifiedteamgroups) > 0) {
+            foreach($modifiedteamgroups as $index => $teamgroup) {
                 if($teamgroup["isactive"]) {
                     $teamgroupsToCheck[] = $teamgroup["entity_id"];
-                    $teamgroups[$index]["isactive"] = "on";
+                    $modifiedteamgroups[$index]["isactive"] = "on";
                 } else {
                     $teamGroupsToDelete[] = $teamgroup["entity_id"];
-                    $teamgroups[$index]["isactive"] = "off";
+                    $modifiedteamgroups[$index]["isactive"] = "off";
                 }
             }
 
@@ -124,14 +137,39 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
             $uniqueGroupsClone = $uniqueGroups;
             $uniqueGroups = array();
 
-            foreach($teamgroups as $teamgroup) {
+            foreach($modifiedteamgroups as $teamgroup) {
                 if(array_key_exists($teamgroup["entity_id"], $uniqueGroupsClone)) {
                     $uniqueGroups[] = $uniqueGroupsClone[$teamgroup["entity_id"]];
                 }
             }
         }
-        if(count($teamgroupsToCheck)) {
-            $groupslogparams["groupid"] = array("IN" => $teamgroupsToCheck);
+
+        $teamgroupsToCheck = array();
+        foreach($teamgroups as $teamgroup) {
+            if($teamgroup["isactive"]) {
+                $teamgroupsToCheck[] = $teamgroup["entity_id"];
+                $modifiedteamgroups[$index]["isactive"] = "on";
+            }
+        }
+
+        if(count($teamgroupsToCheck) == 0) {
+            $teamgroupsToCheck[] = "-1";
+        }
+
+        $groupslogparams["groupid"] = array("IN" => $teamgroupsToCheck);
+
+        if(count($teamgroupsToRemove) > 0) {
+            $teamgroupsToRemove = array_column($teamgroupsToRemove , "entity_id");
+            $groupDetails = getGroupDetailsByIds($teamgroupsToRemove);
+            foreach($groupDetails as $groupDetail) {
+                if(!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
+                    $uniqueGroups[$groupDetail["id"]] = array(
+                        "action"      => "off",
+                        "groupid"     => $groupDetail["id"],
+                        "groupname"   => $groupDetail["name"],
+                    );
+                }
+            }
         }
     }
 
@@ -214,7 +252,21 @@ function getContactTeams() {
     return $teams;
 }
 
+function getModifiedTeams($modifiedAt) {
+    $loggedinUserId = CRM_Core_Session::singleton()->getLoggedInContactID();
+    $teams = civicrm_api3('TeamContact', 'get', array(
+        'sequential' => 1,
+        'contact_id' => $loggedinUserId,
+        'date_modified' => $modifiedAt,
+        'options' => array('sort' => "date_modified DESC"),
+    ));
+    return $teams;
+}
+
 function getTeamGroups($teams, $onlyActiveGroups, $updatedat = "") {
+    if(count($teams) == 0) {
+        $teams[] = "-1";
+    }
     $params = array(
         'sequential' => 1,
         'entity_table' => "civicrm_group",
@@ -228,6 +280,7 @@ function getTeamGroups($teams, $onlyActiveGroups, $updatedat = "") {
     if($onlyActiveGroups) {
         $params["isactive"] = 1;
     }
+
     $teamGroups = civicrm_api3('TeamEntity', 'get', $params);
     return $teamGroups;
 }
