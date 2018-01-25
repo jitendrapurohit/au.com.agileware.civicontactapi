@@ -70,7 +70,7 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
 
     $groupslogparams = array(
       'sequential'    =>  1,
-      'return'        => array("groupid", "action", "groupid.name"),
+      'return'        => array("groupid", "action", "groupid.title"),
       'createdat'     => $params["createdat"],
       'options'       => array('sort' => "id DESC"),
     );
@@ -85,10 +85,15 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
         $teams = getContactTeams();
         $teamsToRemove = array();
         $modifiedTeams = getModifiedTeams($params["createdat"]);
+        $teamsToAdd = array();
 
         foreach($modifiedTeams["values"] as $modifiedTeam) {
             if(!$modifiedTeam["status"]) {
                 $teamsToRemove[] = $modifiedTeam["team_id"];
+            }
+
+            if($modifiedTeam["status"]) {
+                $teamsToAdd[] = $modifiedTeam["team_id"];
             }
         }
 
@@ -100,6 +105,9 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
 
         $teamgroupsToRemove = getTeamGroups($teamsToRemove, FALSE);
         $teamgroupsToRemove = $teamgroupsToRemove["values"];
+
+        $teamGroupsToAdd = getTeamGroups($teamsToAdd, TRUE);
+        $teamGroupsToAdd = $teamGroupsToAdd["values"];
 
         if(count($modifiedteamgroups) > 0) {
             foreach($modifiedteamgroups as $index => $teamgroup) {
@@ -118,7 +126,7 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
                     $uniqueGroups[$activeGroup["id"]] = array(
                         "action"      => "on",
                         "groupid"     => $activeGroup["id"],
-                        "groupname"   => $activeGroup["name"],
+                        "groupname"   => $activeGroup["title"],
                     );
                 }
             }
@@ -129,7 +137,7 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
                     $uniqueGroups[$groupDetail["id"]] = array(
                         "action"      => "off",
                         "groupid"     => $groupDetail["id"],
-                        "groupname"   => $groupDetail["name"],
+                        "groupname"   => $groupDetail["title"],
                     );
                 }
             }
@@ -166,7 +174,21 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
                     $uniqueGroups[$groupDetail["id"]] = array(
                         "action"      => "off",
                         "groupid"     => $groupDetail["id"],
-                        "groupname"   => $groupDetail["name"],
+                        "groupname"   => $groupDetail["title"],
+                    );
+                }
+            }
+        }
+
+        if(count($teamGroupsToAdd) > 0) {
+            $teamGroupsToAdd = array_column($teamGroupsToAdd , "entity_id");
+            $groupDetails = getGroupDetailsByIds($teamGroupsToAdd);
+            foreach($groupDetails as $groupDetail) {
+                if(!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
+                    $uniqueGroups[$groupDetail["id"]] = array(
+                        "action"      => "on",
+                        "groupid"     => $groupDetail["id"],
+                        "groupname"   => $groupDetail["title"],
                     );
                 }
             }
@@ -180,7 +202,7 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
         $uniqueGroups[] = array(
           "action"      => $grouplog["action"],
           "groupid"     => $grouplog["groupid"],
-          "groupname"   => $grouplog["groupid.name"],
+          "groupname"   => $grouplog["groupid.title"],
         );
       }
     }
@@ -302,7 +324,7 @@ function getGroupDetailsByIds($groupids) {
     }
     $group_params = array(
         'sequential' => 1,
-        'return' => array("id", "name"),
+        'return' => array("id", "title"),
         'id'     => array("IN" => $groupids),
     );
     $group_ids = civicrm_api3('Group', 'get', $group_params);
@@ -313,7 +335,7 @@ function getCCAActiveGroups($groupsToCheck = array(), $withName = false) {
     $cca_sync_custom_key = getCCACustomKey();
     $group_params = array(
         'sequential' => 1,
-        'return' => array("id", "name"),
+        'return' => array("id", "title"),
         $cca_sync_custom_key => 1,
     );
     if(count($groupsToCheck)) {
