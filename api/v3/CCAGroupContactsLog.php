@@ -262,51 +262,6 @@ function tagContacts($contacts, $actions = array()) {
   return $contacts;
 }
 
-function getContactTeams() {
-    $loggedinUserId = CRM_Core_Session::singleton()->getLoggedInContactID();
-    $teams = civicrm_api3('TeamContact', 'get', array(
-        'sequential' => 1,
-        'contact_id' => $loggedinUserId,
-        'return' => array("team_id"),
-        'status' => 1,
-    ));
-    $teams = array_column($teams["values"], "team_id");
-    return $teams;
-}
-
-function getModifiedTeams($modifiedAt) {
-    $loggedinUserId = CRM_Core_Session::singleton()->getLoggedInContactID();
-    $teams = civicrm_api3('TeamContact', 'get', array(
-        'sequential' => 1,
-        'contact_id' => $loggedinUserId,
-        'date_modified' => $modifiedAt,
-        'options' => array('sort' => "date_modified DESC"),
-    ));
-    return $teams;
-}
-
-function getTeamGroups($teams, $onlyActiveGroups, $updatedat = "") {
-    if(count($teams) == 0) {
-        $teams[] = "-1";
-    }
-    $params = array(
-        'sequential' => 1,
-        'entity_table' => "civicrm_group",
-        'return' => array("entity_id", "isactive", "date_modified"),
-        'team_id' => array('IN' => $teams),
-        'options' => array('sort' => "date_modified DESC"),
-    );
-    if($updatedat != "") {
-        $params["date_modified"] = $updatedat;
-    }
-    if($onlyActiveGroups) {
-        $params["isactive"] = 1;
-    }
-
-    $teamGroups = civicrm_api3('TeamEntity', 'get', $params);
-    return $teamGroups;
-}
-
 function getCCACustomKey() {
     $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
         'sequential' => 1,
@@ -316,37 +271,6 @@ function getCCACustomKey() {
     $cca_sync_custom_id = $customfield_result["id"];
     $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
     return $cca_sync_custom_key;
-}
-
-function getGroupDetailsByIds($groupids) {
-    if(count($groupids) == 0) {
-        $groupids = array("-1");
-    }
-    $group_params = array(
-        'sequential' => 1,
-        'return' => array("id", "title"),
-        'id'     => array("IN" => $groupids),
-    );
-    $group_ids = civicrm_api3('Group', 'get', $group_params);
-    return $group_ids["values"];
-}
-
-function getCCAActiveGroups($groupsToCheck = array(), $withName = false) {
-    $cca_sync_custom_key = getCCACustomKey();
-    $group_params = array(
-        'sequential' => 1,
-        'return' => array("id", "title"),
-        $cca_sync_custom_key => 1,
-    );
-    if(count($groupsToCheck)) {
-        $group_params["id"] = array("IN" => $groupsToCheck);
-    }
-    $group_ids = civicrm_api3('Group', 'get', $group_params);
-    if(!$withName) {
-        $group_ids = array_column($group_ids["values"], 'id');
-        return $group_ids;
-    }
-    return $group_ids["values"];
 }
 
 function getContacts($bycontactids = FALSE, $contactids = array()) {
@@ -359,7 +283,7 @@ function getContacts($bycontactids = FALSE, $contactids = array()) {
 
   $contactparams = array(
     'sequential'    => 1,
-    'return'        => array("first_name","last_name","sort_name","image_URL","created_date","modified_date"),
+    'return'        => array("first_name","last_name","sort_name","image_URL","created_date","modified_date","group"),
     'api.Email.get' => array('return' => array("location_type_id", "email")),
     'api.Phone.get' => array('return' => array("location_type_id","phone_type_id", "phone")),
     'options'       => array('limit'  => -1)

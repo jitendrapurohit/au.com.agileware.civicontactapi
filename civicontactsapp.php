@@ -243,6 +243,93 @@ function isCiviTeamsExtensionInstalled() {
     return in_array("Team", $entities);
 }
 
+function getContactTeams() {
+    $loggedinUserId = CRM_Core_Session::singleton()->getLoggedInContactID();
+    $teams = civicrm_api3('TeamContact', 'get', array(
+        'sequential' => 1,
+        'contact_id' => $loggedinUserId,
+        'return' => array("team_id"),
+        'status' => 1,
+    ));
+    $teams = array_column($teams["values"], "team_id");
+    return $teams;
+}
+
+function getTeamGroups($teams, $onlyActiveGroups, $updatedat = "") {
+    if(count($teams) == 0) {
+        $teams[] = "-1";
+    }
+    $params = array(
+        'sequential' => 1,
+        'entity_table' => "civicrm_group",
+        'return' => array("entity_id", "isactive", "date_modified"),
+        'team_id' => array('IN' => $teams),
+        'options' => array('sort' => "date_modified DESC"),
+    );
+    if($updatedat != "") {
+        $params["date_modified"] = $updatedat;
+    }
+    if($onlyActiveGroups) {
+        $params["isactive"] = 1;
+    }
+
+    $teamGroups = civicrm_api3('TeamEntity', 'get', $params);
+    return $teamGroups;
+}
+
+function getCCAActiveGroups($groupsToCheck = array(), $withName = false) {
+    $cca_sync_custom_key = getCCACustomKey();
+    $group_params = array(
+        'sequential' => 1,
+        'return' => array("id", "title"),
+        $cca_sync_custom_key => 1,
+    );
+    if(count($groupsToCheck)) {
+        $group_params["id"] = array("IN" => $groupsToCheck);
+    }
+    $group_ids = civicrm_api3('Group', 'get', $group_params);
+    if(!$withName) {
+        $group_ids = array_column($group_ids["values"], 'id');
+        return $group_ids;
+    }
+    return $group_ids["values"];
+}
+
+function getGroupDetailsByIds($groupids, $returnDirectResponse = FALSE) {
+    if(count($groupids) == 0) {
+        $groupids = array("-1");
+    }
+    $group_params = array(
+        'sequential' => 1,
+        'return' => array("id", "title"),
+        'id'     => array("IN" => $groupids),
+    );
+    $group_ids = civicrm_api3('Group', 'get', $group_params);
+    if(!$returnDirectResponse) {
+        return $group_ids["values"];
+    }
+    return $group_ids;
+}
+
+function getModifiedTeams($modifiedAt) {
+    $loggedinUserId = CRM_Core_Session::singleton()->getLoggedInContactID();
+    $teams = civicrm_api3('TeamContact', 'get', array(
+        'sequential' => 1,
+        'contact_id' => $loggedinUserId,
+        'date_modified' => $modifiedAt,
+        'options' => array('sort' => "date_modified DESC"),
+    ));
+    return $teams;
+}
+
+function getGroupContactsCount($groupname) {
+    return civicrm_api3('GroupContact', 'getcount', array(
+        'sequential' => 1,
+        'contact_id.is_deleted' => 0,
+        'group_id' => $groupname,
+    ));
+}
+
 /**
  * Implements hook_civicrm_buildForm().
  *
