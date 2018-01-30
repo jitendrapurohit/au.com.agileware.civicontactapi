@@ -262,7 +262,7 @@ function getTeamGroups($teams, $onlyActiveGroups, $updatedat = "") {
     $params = array(
         'sequential' => 1,
         'entity_table' => "civicrm_group",
-        'return' => array("entity_id", "isactive", "date_modified"),
+        'return' => array("entity_id", "isactive", "date_modified","team_id"),
         'team_id' => array('IN' => $teams),
         'options' => array('sort' => "date_modified DESC"),
     );
@@ -326,6 +326,7 @@ function getGroupContactsCount($groupname) {
     return civicrm_api3('GroupContact', 'getcount', array(
         'sequential' => 1,
         'contact_id.is_deleted' => 0,
+        'contact_id.first_name' => array('<>' => ""),
         'group_id' => $groupname,
     ));
 }

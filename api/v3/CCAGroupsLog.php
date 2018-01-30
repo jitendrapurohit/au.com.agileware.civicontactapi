@@ -87,6 +87,34 @@ function civicrm_api3_c_c_a_groups_log_getmodifiedgroups($params) {
                     "action"  => ($modifiedteamgroup["isactive"]) ? "on" : "off",
                 );
             }
+
+            $modifiedteams = getModifiedTeams($params["createdat"]);
+            $modifiedteams = $modifiedteams["values"];
+            $modifiedteamsresult = array();
+
+            foreach($modifiedteams as $modifiedteam) {
+                $modifiedteamsresult[$modifiedteam["id"]] = array(
+                    "id" => $modifiedteam["id"],
+                    "status" => $modifiedteam["status"],
+                );
+            }
+
+            $modifiedteamids = array_column($modifiedteamsresult, "id");
+            $modifiedteamgroups = getTeamGroups($modifiedteamids, FALSE);
+
+            foreach($modifiedteamgroups["values"] as $modifiedteamgroup) {
+                if($modifiedteamgroup["isactive"] && $modifiedteamsresult[$modifiedteamgroup["team_id"]]["status"]) {
+                    $finalGroupsToProcess[$modifiedteamgroup["entity_id"]] = array(
+                        "groupid" => $modifiedteamgroup["entity_id"],
+                        "action"  => "on",
+                    );
+                } else {
+                    $finalGroupsToProcess[$modifiedteamgroup["entity_id"]] = array(
+                        "groupid" => $modifiedteamgroup["entity_id"],
+                        "action"  => "off",
+                    );
+                }
+            }
         }
 
         $params["options"] = array('sort' => "id DESC");
