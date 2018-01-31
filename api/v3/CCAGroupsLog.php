@@ -75,6 +75,9 @@ function civicrm_api3_c_c_a_groups_log_getmodifiedgroups($params) {
         $teams = getContactTeams();
         $teamgroups = getTeamGroups($teams, TRUE);
         $teamgroups = array_column($teamgroups["values"], "entity_id");
+        if(!count($teamgroups)) {
+            $teamgroups = array("-1");
+        }
     }
 
     if(isset($params["createdat"])) {
@@ -93,8 +96,8 @@ function civicrm_api3_c_c_a_groups_log_getmodifiedgroups($params) {
             $modifiedteamsresult = array();
 
             foreach($modifiedteams as $modifiedteam) {
-                $modifiedteamsresult[$modifiedteam["id"]] = array(
-                    "id" => $modifiedteam["id"],
+                $modifiedteamsresult[$modifiedteam["team_id"]] = array(
+                    "id" => $modifiedteam["team_id"],
                     "status" => $modifiedteam["status"],
                 );
             }
@@ -133,7 +136,6 @@ function civicrm_api3_c_c_a_groups_log_getmodifiedgroups($params) {
 
         foreach($groupsResult["values"] as $index => $groupDetail) {
             $groupsResult["values"][$index]["action"] = $finalGroupsToProcess[$groupDetail["id"]]["action"];
-            $groupsResult["values"][$index]["contacts"] = getGroupContactsCount($groupDetail["id"]);
         }
 
         return $groupsResult;
@@ -141,9 +143,9 @@ function civicrm_api3_c_c_a_groups_log_getmodifiedgroups($params) {
 
     $teamgroups = getCCAActiveGroups($teamgroups);
     $groupsResult = getGroupDetailsByIds($teamgroups, true);
+
     foreach($groupsResult["values"] as $index => $groupDetail) {
         $groupsResult["values"][$index]["action"] = "on";
-        $groupsResult["values"][$index]["contacts"] = getGroupContactsCount($groupDetail["id"]);
     }
 
     return $groupsResult;
