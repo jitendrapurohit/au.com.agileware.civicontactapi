@@ -10,4 +10,10 @@
     <page_callback>CRM_Civicontactsapp_Page_GenerateQRCode</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/cca/settings</path>
+    <page_callback>CRM_Civicontactsapp_Form_Settings</page_callback>
+    <title>Settings</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

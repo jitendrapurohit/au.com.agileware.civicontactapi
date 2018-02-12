@@ -405,6 +405,57 @@ function civicontactsapp_civicrm_managed(&$entities) {
     );
 }
 
+/**
+ * Implements hook_civicrm_navigationMenu().
+ *
+ * Adds entries to the navigation menu.
+ *
+ * @param array $menu
+ */
+function civicontactsapp_civicrm_navigationMenu(&$menu) {
+    $maxID = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
+    $navId = $maxID + 287;
+  
+    // Get the id of System Settings Menu
+    $administerMenuId = CRM_Core_DAO::getFieldValue('CRM_Core_BAO_Navigation', 'Administer', 'id', 'name');
+    $parentID = !empty($administerMenuId) ? $administerMenuId : NULL;
+  
+    $navigationMenu = array(
+      'attributes' => array(
+        'label' => 'Contact App',
+        'name' => 'Contact App',
+        'url' => NULL,
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'parentID' => $parentID,
+        'active' => 1,
+        'navID' => $navId,
+      ),
+      'child' => array(
+        $navId + 1 => array(
+          'attributes' => array(
+            'label' => 'Settings',
+            'name' => 'Settings',
+            'url' => 'civicrm/cca/settings',
+            'permission' => 'administer CiviCRM',
+            'operator' => NULL,
+            'separator' => 0,
+            'active' => 1,
+            'parentID' => $navId,
+            'navID' => $navId + 1,
+          ),
+        ),
+      ),
+    );
+    if ($parentID) {
+      $menu[$parentID]['child'][$navId] = $navigationMenu;
+    }
+    else {
+      $menu[$navId] = $navigationMenu;
+    }
+  }
+
 function getCCASyncCustomFieldKey() {
     $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
         'sequential' => 1,
@@ -488,3 +539,4 @@ function civicontactsapp_civicrm_post($op, $objectName, $objectId, &$objectRef) 
       }
   }
 }
+
