@@ -19,7 +19,8 @@ class CRM_Civicontactsapp_Page_GenerateQRCode extends CRM_Core_Page {
     $config = CRM_Core_Config::singleton();
     $restpath = $config->resourceBase . 'extern/rest.php';
     $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-    $restendpoint = $protocol.$_SERVER['SERVER_NAME'].$restpath;
+    $domain_name = $protocol.$_SERVER['SERVER_NAME'];
+    $restendpoint = $domain_name.$restpath;
 
     $group = civicrm_api3("Group","get",array(
        "name" => "CiviCRM App Contacts",
@@ -31,6 +32,7 @@ class CRM_Civicontactsapp_Page_GenerateQRCode extends CRM_Core_Page {
         $groupid = $group["values"][0]["id"];
     }
 
+    $licence_code = Civi::settings()->get('cca_licence_code');
     $qr_code_pay_load = array(
       "contact_id"                => $contactID,
       "contact_name"              => $contact->display_name,
@@ -38,8 +40,10 @@ class CRM_Civicontactsapp_Page_GenerateQRCode extends CRM_Core_Page {
       "site_key"                  => CIVICRM_SITE_KEY,
       "rest_end_point"            => $restendpoint,
       "groupid"                   => $groupid,
+      "domain_name"               => $domain_name,
+      "licence_code"              => $licence_code,
     );
-
+    
     QRcode::png(json_encode($qr_code_pay_load), FALSE, QR_ECLEVEL_H, 5, 3);
     exit;
   }

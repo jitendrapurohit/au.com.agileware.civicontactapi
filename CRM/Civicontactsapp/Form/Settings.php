@@ -20,9 +20,10 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
   function getFormSettings() {
     if (empty($this->_settings)) {
       $settings = civicrm_api3('setting', 'getfields', array('filters' => $this->_settingFilter));
+      $settings = $settings['values'];
+      $this->_settings = $settings;
     }
-    $settings = $settings['values'];
-    return $settings;
+    return $this->_settings;
   }
 
   public function buildQuickForm() {
@@ -91,7 +92,10 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
       /** @var HTML_QuickForm_Element $element */
       $label = $element->getLabel();
       if (!empty($label)) {
-        $elementNames[] = $element->getName();
+        $elementNames[] = array(
+          "name"        => $element->getName(),
+          "description" => $this->_settings[$element->getName()]["description"]
+        );
       }
     }
     return $elementNames;

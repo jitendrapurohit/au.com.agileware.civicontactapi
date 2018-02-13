@@ -5,11 +5,12 @@
 </div>
 
 <table class="form-layout">
-{foreach from=$elementNames item=elementName}
+{foreach from=$elementNames item=element}
+  {assign var="elementName" value=$element.name}
   <tr>
       <td class="label">{$form.$elementName.label}</td>
       <td>{$form.$elementName.html}<br />
-        <span class="description">{ $form.$elementName.description }</span>
+        <span class="description">{ $element.description }</span>
       </td>
   </tr>
 
