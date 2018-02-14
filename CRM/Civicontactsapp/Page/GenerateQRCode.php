@@ -40,7 +40,7 @@ class CRM_Civicontactsapp_Page_GenerateQRCode extends CRM_Core_Page {
       "site_key"                  => CIVICRM_SITE_KEY,
       "rest_end_point"            => $restendpoint,
       "groupid"                   => $groupid,
-      "domain_name"               => $domain_name,
+      "domain_name"               => $_SERVER['SERVER_NAME'],
       "licence_code"              => $licence_code,
     );
     

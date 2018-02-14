@@ -27,6 +27,7 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
   }
 
   public function buildQuickForm() {
+    $licence_activated = Civi::settings()->get('cca_licence_activated');
     $settings = $this->getFormSettings();
     CRM_Utils_System::setTitle(ts('Settings - Contact App'));
     foreach ($settings as $name => $setting) {
@@ -68,6 +69,7 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
 
     // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
+    $this->assign('licenceActivated', $licence_activated);
     parent::buildQuickForm();
   }
 
@@ -75,6 +77,7 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
     $this->_submittedValues = $this->exportValues();
     $this->saveSettings();
     parent::postProcess();
+    CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/cca/settings'));
   }
 
   /**
@@ -108,7 +111,12 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
    */
   function saveSettings() {
     $settings = $this->getFormSettings();
+    $cca_licence_code = Civi::settings()->get('cca_licence_code');
+    if($cca_licence_code != $this->_submittedValues["cca_licence_code"]) {
+      Civi::settings()->set('cca_licence_activated', 0);
+    }
     $values = array_intersect_key($this->_submittedValues, $settings);
+    unset($values["cca_licence_activated"]);
     civicrm_api3('setting', 'create', $values);
   }
 
