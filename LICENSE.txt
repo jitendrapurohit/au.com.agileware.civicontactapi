@@ -1,4 +1,4 @@
-Package: au.com.agileware.civicontactsapp
+Package: au.com.agileware.civicontact
 Copyright (C) 2017, Alok Patel <alok@agileware.com.au>
 Licensed under the GNU Affero Public License 3.0 (below).
 

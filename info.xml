@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<extension key="au.com.agileware.civicontactsapp" type="module">
+<extension key="au.com.agileware.civicontact" type="module">
   <file>civicontactsapp</file>
-  <name>CiViCRM Contacts App</name>
+  <name>CiviContact</name>
   <description>Support module for CiViCRM Contacts Application.</description>
   <license>AGPL-3.0</license>
   <maintainer>

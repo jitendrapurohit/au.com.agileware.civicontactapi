@@ -388,7 +388,7 @@ function civicontactsapp_civicrm_buildForm($formName, &$form) {
 function civicontactsapp_civicrm_managed(&$entities) {
     $cca_sync_custom_key = getCCASyncCustomFieldKey();
     $entities[] = array(
-        'module'  => 'au.com.agileware.civicontactsapp',
+        'module'  => 'au.com.agileware.civicontact',
         'name'    => 'ccaautogroup',
         'entity'  => 'Group',
         'cleanup' => 'never',
@@ -397,7 +397,7 @@ function civicontactsapp_civicrm_managed(&$entities) {
             'name'    => 'CiviCRM App Contacts',
             'title'   => 'CiviCRM App Contacts',
             'description' => "Contacts from CiviCRM application will be added in this group.",
-            'source' => "au.com.agileware.civicontactsapp",
+            'source' => "au.com.agileware.civicontact",
             'group_type' => "Access Control",
             'is_reserved' => 1,
             $cca_sync_custom_key => 1,

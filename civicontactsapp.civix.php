@@ -8,7 +8,7 @@
  */
 class CRM_Civicontactsapp_ExtensionUtil {
   const SHORT_NAME = "civicontactsapp";
-  const LONG_NAME = "au.com.agileware.civicontactsapp";
+  const LONG_NAME = "au.com.agileware.civicontact";
   const CLASS_PREFIX = "CRM_Civicontactsapp";
 
   /**
