@@ -7,7 +7,7 @@
 <table class="form-layout">
 {foreach from=$elementNames item=element}
   {assign var="elementName" value=$element.name}
-  {if $elementName != 'cca_licence_activated'}
+  {if ($elementName != 'cca_licence_activated')}
       <tr>
           <td class="label">{$form.$elementName.label}</td>
           <td>{$form.$elementName.html}<br />

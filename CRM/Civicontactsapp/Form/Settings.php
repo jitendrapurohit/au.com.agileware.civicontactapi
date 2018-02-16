@@ -11,6 +11,7 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
   private $_settingFilter = array('group' => 'cca');
   private $_submittedValues = array();
   private $_settings = array();
+  private $isSSLEnabled = FALSE;
 
   /**
    * Get the settings we are going to allow to be set on this form.
@@ -70,6 +71,7 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
     // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
     $this->assign('licenceActivated', $licence_activated);
+    $this->isSSLEnabled = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off');
     parent::buildQuickForm();
   }
 
@@ -94,7 +96,7 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
     foreach ($this->_elements as $element) {
       /** @var HTML_QuickForm_Element $element */
       $label = $element->getLabel();
-      if (!empty($label)) {
+      if (!empty($label) && $element->getName() != "cca_licence_activated" && (($element->getName() == "cca_force_ssl" && $this->isSSLEnabled) || $element->getName() != "cca_force_ssl")) {
         $elementNames[] = array(
           "name"        => $element->getName(),
           "description" => $this->_settings[$element->getName()]["description"]
