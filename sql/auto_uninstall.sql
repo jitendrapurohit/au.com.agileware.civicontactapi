@@ -9,3 +9,5 @@ DELETE FROM civicrm_custom_group WHERE name = 'CCA_Group_Settings';
 DELETE  FROM civicrm_option_group WHERE name = 'sync_to_cca';
 
 DELETE  FROM civicrm_group WHERE name = 'CiviCRM App Contacts';
+
+DELETE  FROM civicrm_managed WHERE name = 'ccaautogroup';
