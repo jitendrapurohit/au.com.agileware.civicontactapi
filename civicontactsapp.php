@@ -383,6 +383,27 @@ function civicontactsapp_civicrm_buildForm($formName, &$form) {
 }
 
 /**
+ * Implementation of hook_civicrm_entityTypes
+ */
+function civicontactsapp_civicrm_entityTypes(&$entityTypes) {
+    if(!isset($entityTypes["CRM_Civicontactsapp_DAO_CCAGroupsLog"])) {
+        $entityTypes[] = array(
+            'name'  => 'CCAGroupsLog',
+            'class' => 'CRM_Civicontactsapp_DAO_CCAGroupsLog',
+            'table' => 'civicrm_cca_groups_log',
+        );
+    }
+
+    if(!isset($entityTypes["CRM_Civicontactsapp_DAO_CCAGroupContactsLog"])) {
+        $entityTypes[] = array(
+            'name'  => 'CCAGroupContactsLog',
+            'class' => 'CRM_Civicontactsapp_DAO_CCAGroupContactsLog',
+            'table' => 'civicrm_cca_group_contacts_log',
+        );
+    }
+}
+
+/**
  * Implements _civicrm_managed().
  */
 function civicontactsapp_civicrm_managed(&$entities) {
