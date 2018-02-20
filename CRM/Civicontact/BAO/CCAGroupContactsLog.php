@@ -1,20 +1,20 @@
 <?php
-use CRM_Civicontactsapp_ExtensionUtil as E;
+use CRM_Civicontact_ExtensionUtil as E;
 
-class CRM_Civicontactsapp_BAO_CCAGroupContactsLog extends CRM_Civicontactsapp_DAO_CCAGroupContactsLog {
+class CRM_Civicontact_BAO_CCAGroupContactsLog extends CRM_Civicontact_DAO_CCAGroupContactsLog {
 
   /**
    * Create a new CCAGroupContactsLog based on array-data
    *
    * @param array $params key-value pairs
-   * @return CRM_Civicontactsapp_DAO_CCAGroupContactsLog|NULL
+   * @return CRM_Civicontact_DAO_CCAGroupContactsLog|NULL
    *
 
    */
 
    /*
   public static function create($params) {
-    $className = 'CRM_Civicontactsapp_DAO_CCAGroupContactsLog';
+    $className = 'CRM_Civicontact_DAO_CCAGroupContactsLog';
     $entityName = 'CCAGroupContactsLog';
     $hook = empty($params['id']) ? 'create' : 'edit';
 

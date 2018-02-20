@@ -2,23 +2,23 @@
 <menu>
   <item>
     <path>civicrm/contact/view/qrcode</path>
-    <page_callback>CRM_Civicontactsapp_Page_QRCode</page_callback>
+    <page_callback>CRM_Civicontact_Page_QRCode</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/contact/generate/qrcode</path>
-    <page_callback>CRM_Civicontactsapp_Page_GenerateQRCode</page_callback>
+    <page_callback>CRM_Civicontact_Page_GenerateQRCode</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/cca/settings</path>
-    <page_callback>CRM_Civicontactsapp_Form_Settings</page_callback>
+    <page_callback>CRM_Civicontact_Form_Settings</page_callback>
     <title>Settings</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/cca/activatelicence</path>
-    <page_callback>CRM_Civicontactsapp_Page_ActivateLicence</page_callback>
+    <page_callback>CRM_Civicontact_Page_ActivateLicence</page_callback>
     <title>ActivateLicence</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>

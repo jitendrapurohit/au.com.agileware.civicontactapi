@@ -1,10 +1,10 @@
 <?php
-use CRM_Civicontactsapp_ExtensionUtil as E;
+use CRM_Civicontact_ExtensionUtil as E;
 
 /**
  * Collection of upgrade steps.
  */
-class CRM_Civicontactsapp_Upgrader extends CRM_Civicontactsapp_Upgrader_Base {
+class CRM_Civicontact_Upgrader extends CRM_Civicontact_Upgrader_Base {
 
   // By convention, functions that look like "function upgrade_NNNN()" are
   // upgrade tasks. They are executed in order (like Drupal's hook_update_N).

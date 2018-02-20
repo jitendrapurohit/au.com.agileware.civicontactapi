@@ -5,7 +5,7 @@ return array (
   0 =>
   array (
     'name' => 'CCAGroupsLog',
-    'class' => 'CRM_Civicontactsapp_DAO_CCAGroupsLog',
+    'class' => 'CRM_Civicontact_DAO_CCAGroupsLog',
     'table' => 'civicrm_cca_groups_log',
   ),
 );

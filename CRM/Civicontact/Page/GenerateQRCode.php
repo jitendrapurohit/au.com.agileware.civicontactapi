@@ -1,8 +1,8 @@
 <?php
-use CRM_Civicontactsapp_ExtensionUtil as E;
+use CRM_Civicontact_ExtensionUtil as E;
 require_once 'lib/phpqrcode/qrlib.php';
 
-class CRM_Civicontactsapp_Page_GenerateQRCode extends CRM_Core_Page {
+class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
 
   public function run() {
     $contactID = CRM_Utils_Request::retrieve('cid', 'Integer');
@@ -23,7 +23,7 @@ class CRM_Civicontactsapp_Page_GenerateQRCode extends CRM_Core_Page {
     $restendpoint = $domain_name.$restpath;
 
     $group = civicrm_api3("Group","get",array(
-       "name" => "CiviCRM App Contacts",
+       "name" => "CiviContact",
        "sequential" => true
     ));
 

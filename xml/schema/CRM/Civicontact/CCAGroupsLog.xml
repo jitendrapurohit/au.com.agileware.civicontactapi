@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
 <table>
-  <base>CRM/Civicontactsapp</base>
+  <base>CRM/Civicontact</base>
   <class>CCAGroupsLog</class>
   <name>civicrm_cca_groups_log</name>
   <add>4.4</add>

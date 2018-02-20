@@ -1,5 +1,5 @@
 <?php
-use CRM_Civicontactsapp_ExtensionUtil as E;
+use CRM_Civicontact_ExtensionUtil as E;
 
 /**
  * CCAGroupContactsLog.getmodifiedcontacts API specification

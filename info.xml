@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <extension key="au.com.agileware.civicontact" type="module">
-  <file>civicontactsapp</file>
+  <file>civicontact</file>
   <name>CiviContact</name>
-  <description>Support module for CiViCRM Contacts Application.</description>
+  <description>Helper extension for CiviContact mobile application.</description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>Agileware</author>
@@ -13,6 +13,7 @@
     <url desc="Documentation">https://agileware.com.au</url>
     <url desc="Support">https://support.agileware.com.au</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+    <url desc="CiviContact Mobile Application">https://play.google.com/store/apps/details?id=au.com.agileware.civicontact</url>
   </urls>
   <releaseDate>2018-02-16</releaseDate>
   <version>1.0.7</version>
@@ -22,6 +23,6 @@
     <ver>4.7</ver>
   </compatibility>
   <civix>
-    <namespace>CRM/Civicontactsapp</namespace>
+    <namespace>CRM/Civicontact</namespace>
   </civix>
 </extension>

@@ -1,7 +1,7 @@
 <?php
-use CRM_Civicontactsapp_ExtensionUtil as E;
+use CRM_Civicontact_ExtensionUtil as E;
 
-class CRM_Civicontactsapp_Page_ActivateLicence extends CRM_Core_Page {
+class CRM_Civicontact_Page_ActivateLicence extends CRM_Core_Page {
 
   public function run() {
       $licence_code = Civi::settings()->get('cca_licence_code');

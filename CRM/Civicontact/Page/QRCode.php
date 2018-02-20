@@ -1,7 +1,7 @@
 <?php
-use CRM_Civicontactsapp_ExtensionUtil as E;
+use CRM_Civicontact_ExtensionUtil as E;
 
-class CRM_Civicontactsapp_Page_QRCode extends CRM_Core_Page {
+class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
 
   public function run() {
     $contactID = CRM_Utils_Request::retrieve('cid', 'Integer');

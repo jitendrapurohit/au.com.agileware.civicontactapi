@@ -1,13 +1,13 @@
 <?php
 
-use CRM_Civicontactsapp_ExtensionUtil as E;
+use CRM_Civicontact_ExtensionUtil as E;
 
 /**
  * Form controller class
  *
  * @see https://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
  */
-class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
+class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   private $_settingFilter = array('group' => 'cca');
   private $_submittedValues = array();
   private $_settings = array();
@@ -30,7 +30,7 @@ class CRM_Civicontactsapp_Form_Settings extends CRM_Core_Form {
   public function buildQuickForm() {
     $licence_activated = Civi::settings()->get('cca_licence_activated');
     $settings = $this->getFormSettings();
-    CRM_Utils_System::setTitle(ts('Settings - Contact App'));
+    CRM_Utils_System::setTitle(ts('Settings - CiviContact'));
     foreach ($settings as $name => $setting) {
       if (isset($setting['quick_form_type'])) {
         $add = 'add' . $setting['quick_form_type'];
