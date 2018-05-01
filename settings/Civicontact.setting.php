@@ -74,6 +74,27 @@ return array(
     'title' =>  'Licence Code',
     'help_text' => '',
   ),
+  'cca_contact_tile_click_action' => array(
+    'group_name' => 'CiviContact Settings',
+    'group' => 'cca',
+    'name' => 'cca_contact_tile_click_action',
+    'type' => 'String',
+    'add' => '4.7',
+    'quick_form_type' => 'Select',
+    'html_type' => 'Select',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'default' => 'default',
+    'description' => '',
+    'title' =>  'Contact tile click action',
+    'pseudoconstant' => array(
+        'callback' => 'CRM_Civicontact_Form_Settings::getContactTileClickActions',
+    ),
+    'html_attributes' => array(
+
+    ),
+    'help_text' => ''
+  ),
   'cca_sync_interval' => array(
     'group_name' => 'CiviContact Settings',
     'group' => 'cca',
@@ -95,4 +116,5 @@ return array(
     ),
     'help_text' => ''
   ),
+
  );
