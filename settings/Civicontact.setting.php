@@ -95,6 +95,28 @@ return array(
     ),
     'help_text' => ''
   ),
+  'cca_activity_types' => array(
+    'group_name' => 'CiviContact Settings',
+    'group' => 'cca',
+    'name' => 'cca_activity_types',
+    'type' => 'String',
+    'add' => '4.7',
+    'quick_form_type' => 'Select',
+    'html_type' => 'Select',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'default' => 'default',
+    'description' => 'Select all the activity types which can be displayed under Activity history of a contact.',
+    'title' =>  'Contact Activity types',
+    'pseudoconstant' => array(
+        'callback' => 'CRM_Civicontact_Form_Settings::getActivityTypes',
+    ),
+    'html_attributes' => array(
+      'class' => 'crm-select2',
+      'multiple' => 1,
+    ),
+    'help_text' => ''
+  ),
   'cca_sync_interval' => array(
     'group_name' => 'CiviContact Settings',
     'group' => 'cca',

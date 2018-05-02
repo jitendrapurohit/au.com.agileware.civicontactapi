@@ -221,11 +221,11 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
       }
     }
     $contactids = array_keys($contactsfound);
-    $contacts = getContacts(TRUE, $contactids);
+    $contacts = getContacts($params,TRUE, $contactids);
     return tagContacts($contacts, $contactsfound);
   }
 
-  $contacts = getContacts();
+  $contacts = getContacts($params);
   return tagContacts($contacts);
 }
 
@@ -273,7 +273,7 @@ function getCCACustomKey() {
     return $cca_sync_custom_key;
 }
 
-function getContacts($bycontactids = FALSE, $contactids = array()) {
+function getContacts($params = array(), $bycontactids = FALSE, $contactids = array()) {
   $isCiviTeamsInstalled = isCiviTeamsExtensionInstalled();
 
   $teams = array();
@@ -313,6 +313,12 @@ function getContacts($bycontactids = FALSE, $contactids = array()) {
       $contactids[] = "-1";
     }
     $contactparams["id"] = array('IN' => $contactids);
+  }
+
+  if(isset($params["return"]) && count($params["return"]) == 1 && $params["return"][0] = 'contact_id') {
+      $contactparams["return"] = $params["return"];
+      unset($contactparams["api.Email.get"]);
+      unset($contactparams["api.Phone.get"]);
   }
 
   $contacts = civicrm_api3('Contact', 'get', $contactparams);

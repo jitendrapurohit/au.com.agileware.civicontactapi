@@ -173,4 +173,24 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
     return $clickActions;
   }
 
+  /**
+   * Get the contact tile click actions availble.
+   *
+   * @return array
+   */
+  public static function getActivityTypes() {
+    $activityTypes = civicrm_api3('OptionValue', 'get', array(
+        'sequential' => 1,
+        'return' => array("label", "value", "name"),
+        'option_group_id' => "activity_type",
+        'component_id' => array('IS NULL' => 1),
+        'is_active' => 1,
+    ));
+    $activityTypeOptions = array();
+    foreach($activityTypes["values"] as $activityType) {
+        $activityTypeOptions[$activityType["value"]]  = $activityType["label"];
+    }
+    return $activityTypeOptions;
+ }
+
 }
