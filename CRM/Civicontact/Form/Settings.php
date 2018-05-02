@@ -161,14 +161,14 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   public static function getContactTileClickActions() {
     $activityTypes = civicrm_api3('OptionValue', 'get', array(
       'sequential' => 1,
-      'return' => array("label", "value"),
+      'return' => array("label", "value", "name"),
       'option_group_id' => "activity_type",
       'component_id' => array('IS NULL' => 1),
       'is_active' => 1,
     ));
     $clickActions = array();
     foreach($activityTypes["values"] as $activityType) {
-      $clickActions["activity__{$activityType["id"]}__{$activityType["label"]}"]  = "Create {$activityType["label"]}";
+      $clickActions["activity__{$activityType["value"]}__{$activityType["name"]}"]  = "Create {$activityType["label"]}";
     }
     return $clickActions;
   }
