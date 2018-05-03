@@ -214,6 +214,12 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
       $contactsfound = $contactsfound + $contactactions;
     }
 
+    $paramsReturn = NULL;
+    if (isset($params['return'])) {
+      $paramsReturn = $params['return']; //Stroing return to use the same params in fetching Groups.
+      unset($params['return']);
+    }
+
     $groupcontactlogs = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
     foreach($groupcontactlogs["values"] as $groupcontactlog) {
       if(!array_key_exists($groupcontactlog["contactid"], $contactsfound)) {
@@ -221,6 +227,10 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
       }
     }
     $contactids = array_keys($contactsfound);
+
+    if ($paramsReturn) {
+      $params['return'] = $paramsReturn; //Setting the return params back.
+    }
     $contacts = getContacts($params,TRUE, $contactids);
     return tagContacts($contacts, $contactsfound);
   }

@@ -10,7 +10,11 @@ use CRM_Civicontact_ExtensionUtil as E;
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_activity_Ccaactivities_spec(&$spec) {
-
+  $spec['createdat'] = array(
+    'api.required' => 0,
+    'title' => 'Created At',
+    'type' => CRM_Utils_Type::T_TIMESTAMP,
+  );
 }
 
 /**
@@ -23,6 +27,7 @@ function _civicrm_api3_activity_Ccaactivities_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_activity_Ccaactivities($params) {
+  $params['sequential'] = 1;
   $contactsToFetch = $result = civicrm_api3('CCAGroupContactsLog', 'getmodifiedcontacts', array(
       'sequential' => 1,
       'return'     => array('contact_id'),
@@ -34,8 +39,72 @@ function civicrm_api3_activity_Ccaactivities($params) {
   unset($contactActivities[0]);
   unset($contactActivities[count($contactActivities)]);
 
-  $params['contact_id'] = $contactsToFetch;
-  $params['activity_type_id'] = $contactActivities;
+  if (count($contactsToFetch) == 0) {
+    $contactsToFetch[] = "";
+  }
+  if (count($contactActivities) == 0) {
+      $contactActivities[] = "";
+  }
 
-  return _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
+  $params['contact_id'] = array("IN" => $contactsToFetch);
+  $params['activity_type_id'] = array("IN" => $contactActivities);
+
+  $params['options'] = array(
+    'limit' => '0',
+  );
+
+  $params['return'] = array("activity_type_id", "subject", "activity_date_time", "source_contact_id", "target_contact_id", "assignee_contact_id", "created_date", "modified_date", "id");
+
+  if(isset($params["createdat"])) {
+    $params['created_date'] = $params['createdat'];
+    $params['modified_date'] = $params['createdat'];
+    $params['options']['or'] = array(
+      array(
+        'created_date', 'modified_date'
+      ),
+    );
+  }
+
+  $updatedResult = civicrm_api3_activity_get($params);
+
+  if(isset($params["createdat"])) {
+    $updatedContacts = civicrm_api3('CCAGroupContactsLog', 'getmodifiedcontacts', array(
+      'sequential' => 1,
+      'return'     => array('contact_id'),
+      'createdat' => $params["createdat"],
+    ));
+
+    $updatedContacts = array_column($updatedContacts["values"], "contact_id");
+    if (count($updatedContacts)) {
+      unset($params['created_date']);
+      unset($params['modified_date']);
+      unset($params['createdat']);
+      unset($params['options']['or']);
+      $params['contact_id'] = array("IN" => $updatedContacts);
+      $updatedContactsResult = civicrm_api3_activity_get($params);
+      _civicontact_merge_activities_result($updatedResult, $updatedContactsResult);
+    }
+  }
+
+  return $updatedResult;
+}
+
+/**
+ * Function to merge two activitiy APIs result.
+ *
+ * @param $updatedResult
+ * @param $updatedContactsResult
+ *
+ */
+function _civicontact_merge_activities_result(&$updatedResult, $updatedContactsResult) {
+  $activitiesInList = array();
+  foreach($updatedResult['values'] as $activity) {
+    $activitiesInList[] = $activity["id"];
+  }
+
+  foreach($updatedContactsResult['values'] as $activity) {
+    if(!in_array($activity['id'], $activitiesInList)) {
+      $updatedResult['values'][] =  $activity;
+    }
+  }
 }
