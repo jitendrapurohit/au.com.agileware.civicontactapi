@@ -86,6 +86,8 @@ function civicrm_api3_activity_Ccaactivities($params) {
     }
   }
 
+  $updatedResult['count'] = count($updatedResult['values']);
+
   return $updatedResult;
 }
 
