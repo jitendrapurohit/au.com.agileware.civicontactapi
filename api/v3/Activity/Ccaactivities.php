@@ -53,7 +53,7 @@ function civicrm_api3_activity_Ccaactivities($params) {
     'limit' => '0',
   );
 
-  $params['return'] = array("activity_type_id", "subject", "activity_date_time", "source_contact_id", "target_contact_id", "assignee_contact_id", "created_date", "modified_date", "id");
+  $params['return'] = array("activity_type_id", "subject", "details", "activity_date_time", "source_contact_id", "target_contact_id", "assignee_contact_id", "created_date", "modified_date", "id");
 
   if(isset($params["createdat"])) {
     $params['created_date'] = $params['createdat'];
