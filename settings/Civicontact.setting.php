@@ -12,7 +12,7 @@ return array(
     'is_contact' => 0,
     'html_type' => 'Text',
     'description' => 'If set it as Yes, Application config will be same for all users and it can\'t be changed from App settings.',
-    'title' =>  'Enable Global Config',
+    'title' => 'Enable Global Config',
     'help_text' => 'If set it as Yes, Application config will be same for all users.',
   ),
   'cca_force_ssl' => array(
@@ -25,7 +25,7 @@ return array(
     'is_domain' => 1,
     'is_contact' => 0,
     'description' => 'If set it as Yes, SSL will be required for all requests from App to CiviCRM.',
-    'title' =>  'Force SSL',
+    'title' => 'Force SSL',
     'help_text' => 'If set it as Yes, SSL will be required for all requests from App to CiviCRM.',
   ),
   'cca_licence_activated' => array(
@@ -39,7 +39,7 @@ return array(
     'default' => 0,
     'is_contact' => 0,
     'description' => '',
-    'title' =>  'Licence Activated',
+    'title' => 'Licence Activated',
     'help_text' => '',
   ),
   'cca_email_to_activity' => array(
@@ -53,7 +53,7 @@ return array(
     'is_contact' => 0,
     'html_type' => 'Text',
     'description' => '',
-    'title' =>  'Email to Activity',
+    'title' => 'Email to Activity',
     'help_text' => 'If set it as Yes, A new activity will be created for each email sent from Application.',
   ),
   'cca_licence_code' => array(
@@ -71,7 +71,7 @@ return array(
     'is_contact' => 0,
     'html_type' => 'Text',
     'description' => 'Please contact <a href="https://agileware.com.au/contact" target="_blank">Agileware</a> to get licence code for CiviContact.',
-    'title' =>  'Licence Code',
+    'title' => 'Licence Code',
     'help_text' => '',
   ),
   'cca_contact_tile_click_action' => array(
@@ -86,14 +86,12 @@ return array(
     'is_contact' => 0,
     'default' => 'default',
     'description' => '',
-    'title' =>  'Contact tile click action',
+    'title' => 'Contact tile click action',
     'pseudoconstant' => array(
-        'callback' => 'CRM_Civicontact_Form_Settings::getContactTileClickActions',
+      'callback' => 'CRM_Civicontact_Form_Settings::getContactTileClickActions',
     ),
-    'html_attributes' => array(
-
-    ),
-    'help_text' => ''
+    'html_attributes' => array(),
+    'help_text' => '',
   ),
   'cca_activity_types' => array(
     'group_name' => 'CiviContact Settings',
@@ -107,15 +105,36 @@ return array(
     'is_contact' => 0,
     'default' => 'default',
     'description' => 'Select all the activity types which can be displayed under Activity history of a contact.',
-    'title' =>  'Contact Activity types',
+    'title' => 'Contact Activity types',
     'pseudoconstant' => array(
-        'callback' => 'CRM_Civicontact_Form_Settings::getActivityTypes',
+      'callback' => 'CRM_Civicontact_Form_Settings::getActivityTypes',
     ),
     'html_attributes' => array(
       'class' => 'crm-select2',
       'multiple' => 1,
     ),
-    'help_text' => ''
+    'help_text' => '',
+  ),
+  'cca_profile' => array(
+    'group_name' => 'CiviContact Settings',
+    'group' => 'cca',
+    'name' => 'cca_profile',
+    'type' => 'String',
+    'add' => '4.7',
+    'quick_form_type' => 'Select',
+    'html_type' => 'Select',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'default' => 'default',
+    'description' => 'Select a profile you want to use on add/edit contact page of CiviContact App.',
+    'title' => 'Contact Profile',
+    'pseudoconstant' => array(
+      'callback' => 'CRM_Civicontact_Form_Settings::getUFGroups',
+    ),
+    'html_attributes' => array(
+      'class' => 'crm-select2',
+    ),
+    'help_text' => '',
   ),
   'cca_sync_interval' => array(
     'group_name' => 'CiviContact Settings',
@@ -129,14 +148,12 @@ return array(
     'is_contact' => 0,
     'default' => 'default',
     'description' => '',
-    'title' =>  'Sync Interval',
+    'title' => 'Sync Interval',
     'pseudoconstant' => array(
       'callback' => 'CRM_Civicontact_Form_Settings::getSyncIntervalOptions',
     ),
-    'html_attributes' => array(
-      
-    ),
-    'help_text' => ''
+    'html_attributes' => array(),
+    'help_text' => '',
   ),
 
- );
+);

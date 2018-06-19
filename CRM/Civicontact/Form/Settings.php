@@ -12,13 +12,47 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   private $_submittedValues = array();
   private $_settings = array();
   private $isSSLEnabled = FALSE;
+  private $supportedFields = array(
+    "Organization" => array(
+      "sic_code",
+      "organization_name",
+      "legal_name",
+      "legal_identifier",
+    ),
+    "Contact" => array(
+      "address_name",
+      "url",
+      "supplemental_address_3",
+      "supplemental_address_2",
+      "supplemental_address_1",
+      "street_address",
+      "state_province",
+      "postal_code",
+      "county",
+      "country",
+      "city",
+    ),
+    "Household" => array(
+      "household_name",
+    ),
+    "Individual" => array(
+      "middle_name",
+      "job_title",
+      "suffix_id",
+      "prefix_id",
+      "gender_id",
+      "formal_title",
+      "current_employer",
+      "birth_date",
+    ),
+  );
 
   /**
    * Get the settings we are going to allow to be set on this form.
    *
    * @return array
    */
-  function getFormSettings() {
+  public function getFormSettings() {
     if (empty($this->_settings)) {
       $settings = civicrm_api3('setting', 'getfields', array('filters' => $this->_settingFilter));
       $settings = $settings['values'];
@@ -35,13 +69,14 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       if (isset($setting['quick_form_type'])) {
         $add = 'add' . $setting['quick_form_type'];
         if ($add == 'addElement') {
-          $this->$add($setting['html_type'], $name, ts($setting['title']), CRM_Utils_Array::value('html_attributes', $setting, array ()));
+          $this->$add($setting['html_type'], $name, ts($setting['title']), CRM_Utils_Array::value('html_attributes', $setting, array()));
         }
         elseif (isset($setting['html_type']) && $setting['html_type'] == 'Select') {
           $optionValues = array();
           if (!empty($setting['pseudoconstant']) && !empty($setting['pseudoconstant']['optionGroupName'])) {
             $optionValues = CRM_Core_OptionGroup::values($setting['pseudoconstant']['optionGroupName'], FALSE, FALSE, FALSE, NULL, 'name');
-          } else {
+          }
+          else {
             $optionValues = civicrm_api3('Setting', 'getoptions', array(
               'field' => $name,
             ));
@@ -55,7 +90,6 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
         $this->assign("{$setting['description']}_description", ts('description'));
       }
     }
-    
     $this->addButtons(array(
       array(
         'type' => 'submit',
@@ -72,6 +106,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
     $this->assign('elementNames', $this->getRenderableElementNames());
     $this->assign('licenceActivated', $licence_activated);
     $this->isSSLEnabled = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off');
+    $this->checkSelectedProfile();
     parent::buildQuickForm();
   }
 
@@ -80,6 +115,30 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
     $this->saveSettings();
     parent::postProcess();
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/cca/settings'));
+  }
+
+  /**
+   *  Check selected Contact profile.
+   */
+  public function checkSelectedProfile() {
+    $selectedProfile = Civi::settings()->get('cca_profile');
+    if ($selectedProfile) {
+      $supportFieldNames = array();
+      foreach ($this->supportedFields as $supportedFieldType => $supportedFieldNameValues) {
+        $supportFieldNames = array_merge($supportFieldNames, $supportedFieldNameValues);
+      }
+      $selectedProfileFields = civicrm_api3("UFField", "get", array(
+        'uf_group_id' => $selectedProfile,
+        'sequential'  => TRUE,
+        'is_active'   => TRUE,
+        'field_name'  => array('NOT IN' => $supportFieldNames),
+      ));
+
+      if ($selectedProfileFields["count"]) {
+        $this->assign("profile_warning", "CiviContact does not support following fields from selected profile and it will not display them on add/edit contact page in application.");
+        $this->assign("notsupported_profile_fields", $selectedProfileFields["values"]);
+      }
+    }
   }
 
   /**
@@ -99,7 +158,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       if (!empty($label) && $element->getName() != "cca_licence_activated" && (($element->getName() == "cca_force_ssl" && $this->isSSLEnabled) || $element->getName() != "cca_force_ssl")) {
         $elementNames[] = array(
           "name"        => $element->getName(),
-          "description" => $this->_settings[$element->getName()]["description"]
+          "description" => $this->_settings[$element->getName()]["description"],
         );
       }
     }
@@ -109,12 +168,11 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   /**
    * Get the settings we are going to allow to be set on this form.
    *
-   * @return array
    */
-  function saveSettings() {
+  public function saveSettings() {
     $settings = $this->getFormSettings();
     $cca_licence_code = Civi::settings()->get('cca_licence_code');
-    if($cca_licence_code != $this->_submittedValues["cca_licence_code"]) {
+    if ($cca_licence_code != $this->_submittedValues["cca_licence_code"]) {
       Civi::settings()->set('cca_licence_activated', 0);
     }
     $values = array_intersect_key($this->_submittedValues, $settings);
@@ -127,7 +185,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
    *
    * @see CRM_Core_Form::setDefaultValues()
    */
-  function setDefaultValues() {
+  public function setDefaultValues() {
     $existing = civicrm_api3('setting', 'get', array('return' => array_keys($this->getFormSettings())));
     $defaults = array();
     $domainID = CRM_Core_Config::domainID();
@@ -167,7 +225,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       'is_active' => 1,
     ));
     $clickActions = array();
-    foreach($activityTypes["values"] as $activityType) {
+    foreach ($activityTypes["values"] as $activityType) {
       $clickActions["activity__{$activityType["value"]}__{$activityType["name"]}"]  = "Create {$activityType["label"]}";
     }
     return $clickActions;
@@ -187,10 +245,29 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
         'is_active' => 1,
     ));
     $activityTypeOptions = array();
-    foreach($activityTypes["values"] as $activityType) {
-        $activityTypeOptions[$activityType["value"]]  = $activityType["label"];
+    foreach ($activityTypes["values"] as $activityType) {
+      $activityTypeOptions[$activityType["value"]]  = $activityType["label"];
     }
     return $activityTypeOptions;
- }
+  }
+
+  /**
+   * Get the contact tile click actions availble.
+   *
+   * @return array
+   */
+  public static function getUFGroups() {
+    $ufGroups = civicrm_api3('UFGroup', 'get', array(
+        'sequential' => 1,
+        'is_active' => 1,
+    ));
+    $ufGroupOptions = array("0" => "- None -");
+    foreach ($ufGroups["values"] as $ufGroup) {
+      if (!isset($ufGroup["is_reserved"]) || (isset($ufGroup["is_reserved"]) && !$ufGroup["is_reserved"])) {
+        $ufGroupOptions[$ufGroup["id"]]  = $ufGroup["title"];
+      }
+    }
+    return $ufGroupOptions;
+  }
 
 }

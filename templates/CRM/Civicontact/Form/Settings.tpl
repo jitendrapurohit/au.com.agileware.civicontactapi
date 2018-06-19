@@ -1,4 +1,27 @@
-    <div class="crm-block crm-form-block crm-case-form-block">
+{if $profile_warning}
+    <div class="messages status no-popup">
+        <p>{$profile_warning}</p>
+
+        <table class="display">
+            <thead>
+                <th>Field Type</th>
+                <th>Field Name</th>
+            </thead>
+            <tbody>
+                {foreach from=$notsupported_profile_fields item=notsupported_profile_field}
+                    <tr>
+                        <td>{$notsupported_profile_field.field_type}</td>
+                        <td>{$notsupported_profile_field.label}</td>
+                    </tr>
+                {/foreach}
+            </tbody>
+        </table><br>
+
+        Create new profile or copy existing to use in CiviContact.
+    </div>
+{/if}
+
+<div class="crm-block crm-form-block crm-case-form-block">
 
 <div class="crm-submit-buttons">
 {include file="CRM/common/formButtons.tpl" location="top"}
