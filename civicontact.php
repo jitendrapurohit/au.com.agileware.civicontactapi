@@ -561,3 +561,61 @@ function civicontact_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   }
 }
 
+
+/**
+ * Find selected profile for CCA
+ *
+ * @return array|null
+ * @throws CiviCRM_API3_Exception
+ */
+function getCCASelectedProfile() {
+    $ccaProfileId = Civi::settings()->get('cca_profile');
+    $ccaprofile = civicrm_api3("UFGroup", "get", array (
+       "id"         => $ccaProfileId,
+       "sequential" => TRUE,
+    ));
+
+    if ($ccaprofile["count"]) {
+      $ccaprofile = $ccaprofile["values"][0];
+    } else {
+      $ccaprofile = null;
+    }
+    return $ccaprofile;
+}
+
+/**
+ * Get CCA Selected profile Fields.
+ *
+ * @return array
+ * @throws CiviCRM_API3_Exception
+ */
+function getCCASelectedProfileFields() {
+  $ccaProfileId = Civi::settings()->get('cca_profile');
+  $supportFieldNames = getCCASupportedProfileFields();
+  $allProfilefields = CRM_Core_BAO_UFGroup::getFields($ccaProfileId, FALSE, NULL, NULL, NULL, TRUE);
+  $selectedProfileFields = array();
+
+  foreach ($allProfilefields as $field_key => $allProfilefield) {
+    $field_key = explode("-", $field_key);
+    $field_key = $field_key[0];
+    if (in_array($field_key, $supportFieldNames)) {
+      $allProfilefield["db_field_name"] = $field_key;
+      $selectedProfileFields[] = $allProfilefield;
+    }
+  }
+
+  return $selectedProfileFields;
+}
+
+/**
+ * Get Supported profile fields
+ *
+ * @return Array
+ */
+function getCCASupportedProfileFields() {
+  $supportFieldNames = array();
+  foreach (CRM_Civicontact_Form_Settings::$supportedFields as $supportedFieldType => $supportedFieldNameValues) {
+    $supportFieldNames = array_merge($supportFieldNames, $supportedFieldNameValues);
+  }
+  return $supportFieldNames;
+}

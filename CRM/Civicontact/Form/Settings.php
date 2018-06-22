@@ -12,7 +12,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   private $_submittedValues = array();
   private $_settings = array();
   private $isSSLEnabled = FALSE;
-  private $supportedFields = array(
+  public static $supportedFields = array(
     "Organization" => array(
       "sic_code",
       "organization_name",
@@ -123,10 +123,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   public function checkSelectedProfile() {
     $selectedProfile = Civi::settings()->get('cca_profile');
     if ($selectedProfile) {
-      $supportFieldNames = array();
-      foreach ($this->supportedFields as $supportedFieldType => $supportedFieldNameValues) {
-        $supportFieldNames = array_merge($supportFieldNames, $supportedFieldNameValues);
-      }
+      $supportFieldNames = getCCASupportedProfileFields();
       $selectedProfileFields = civicrm_api3("UFField", "get", array(
         'uf_group_id' => $selectedProfile,
         'sequential'  => TRUE,
