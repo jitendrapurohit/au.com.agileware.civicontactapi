@@ -58,5 +58,26 @@ function _cca_api_modify_profile_fields(&$selectedProfileFields) {
       }
       $selectedProfileField["selectionvalues"] = $options;
     }
+    elseif(isProfileFieldCustom($selectedProfileField["name"]))  {
+      $field = CRM_Core_BAO_CustomField::getFieldObject(CRM_Core_BAO_CustomField::getKeyID($selectedProfileField["name"]));
+      $isSelect = (in_array($selectedProfileField["html_type"], array(
+        'Select',
+        'Multi-Select',
+        'CheckBox',
+        'Autocomplete-Select',
+        'Radio',
+      )));
+      if ($isSelect) {
+        $options = $field->getOptions('create');
+        $optionsToSend = array();
+        foreach($options as $key => $option) {
+          $optionsToSend[] = array(
+            "key" => $key,
+            "val" => $option,
+          );
+        }
+        $selectedProfileField["selectionvalues"] = $optionsToSend;
+      }
+    }
   }
 }

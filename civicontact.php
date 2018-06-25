@@ -598,9 +598,19 @@ function getCCASelectedProfileFields() {
   foreach ($allProfilefields as $field_key => $allProfilefield) {
     $field_key = explode("-", $field_key);
     $field_key = $field_key[0];
+
     if (in_array($field_key, $supportFieldNames)) {
       $allProfilefield["db_field_name"] = $field_key;
+      $allProfilefield["iscustomfield"] = FALSE;
       $selectedProfileFields[] = $allProfilefield;
+    }
+    elseif (isProfileFieldCustom($field_key)) {
+      // It's a custom field, act accordingly.
+      if(isCustomFieldSupported($allProfilefield)) {
+        $allProfilefield["db_field_name"] = $field_key;
+        $allProfilefield["iscustomfield"] = TRUE;
+        $selectedProfileFields[] = $allProfilefield;
+      }
     }
   }
 
@@ -618,4 +628,24 @@ function getCCASupportedProfileFields() {
     $supportFieldNames = array_merge($supportFieldNames, $supportedFieldNameValues);
   }
   return $supportFieldNames;
+}
+
+/**
+ * Check if given custom is supported in App.
+ *
+ * @param $customFieldToCheck
+ * @return bool
+ */
+function isCustomFieldSupported($customFieldToCheck) {
+    return in_array($customFieldToCheck["data_type"]."[-]".$customFieldToCheck["html_type"], CRM_Civicontact_Form_Settings::$supportedCustomFieldDataTypes);
+}
+
+/**
+ * Check if profile field is custom field.
+ *
+ * @param $customFieldName
+ * @return bool
+ */
+function isProfileFieldCustom($customFieldName) {
+    return (strpos($customFieldName, "custom_")  === 0);
 }

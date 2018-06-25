@@ -47,6 +47,25 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
     ),
   );
 
+  public static $supportedCustomFieldDataTypes = array(
+      "String[-]Text",
+      "String[-]Select",
+      "String[-]Radio",
+      "String[-]CheckBox",
+      "String[-]Multi-Select",
+      "String[-]Autocomplete-Select",
+      "Int[-]Text",
+      "Int[-]Radio",
+      "Memo[-]TextArea",
+      "Date[-]Select Date",
+      "Boolean[-]Radio",
+      "StateProvince[-]Select State/Province",
+      "StateProvince[-]Multi-Select State/Province",
+      "Country[-]Select Country",
+      "Country[-]Multi-Select Country",
+      "Link[-]Link",
+  );
+
   /**
    * Get the settings we are going to allow to be set on this form.
    *
@@ -131,9 +150,35 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
         'field_name'  => array('NOT IN' => $supportFieldNames),
       ));
 
-      if ($selectedProfileFields["count"]) {
+      $unSupportedFields = array();
+      $customFields = array();
+      foreach ($selectedProfileFields["values"] as $selectedProfileField) {
+        if (isProfileFieldCustom($selectedProfileField["field_name"])) {
+          $selectedProfileField["custom_field_id"] = CRM_Core_BAO_CustomField::getKeyID($selectedProfileField["field_name"]);
+          $customFields[] = $selectedProfileField;
+        } else {
+          $unSupportedFields[] = $selectedProfileField;
+        }
+      }
+
+      $customFieldIds = array_column($customFields, "custom_field_id");
+      $customFieldsToCheck = civicrm_api3("CustomField", "get", array(
+          'id' => array('IN' => $customFieldIds),
+          'sequential' => TRUE,
+      ));
+
+      $customFieldsToCheck = $customFieldsToCheck["values"];
+
+      foreach ($customFieldsToCheck as $index => $customFieldToCheck) {
+        if(!isCustomFieldSupported($customFieldToCheck)) {
+          $customFieldToCheck["field_type"] = "Contact";
+          $unSupportedFields[] = $customFieldToCheck;
+        }
+      }
+
+      if (count($unSupportedFields)) {
         $this->assign("profile_warning", "CiviContact does not support following fields from selected profile and it will not display them on add/edit contact page in application.");
-        $this->assign("notsupported_profile_fields", $selectedProfileFields["values"]);
+        $this->assign("notsupported_profile_fields", $unSupportedFields);
       }
     }
   }
