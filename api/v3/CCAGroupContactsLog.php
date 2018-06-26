@@ -292,12 +292,21 @@ function getContacts($params = array(), $bycontactids = FALSE, $contactids = arr
   }
 
   $contactparams = array(
-    'sequential'    => 1,
-    'return'        => array("first_name","last_name","sort_name","image_URL","created_date","modified_date","group"),
-    'api.Email.get' => array('return' => array("location_type_id", "email")),
-    'api.Phone.get' => array('return' => array("location_type_id","phone_type_id", "phone")),
-    'options'       => array('limit'  => -1)
+    'sequential'      => 1,
+    'return'          => array("first_name","last_name","sort_name","image_URL","created_date","modified_date","group", "birth_date", "current_employer", "formal_title", "gender", "prefix_id", "suffix_id", "job_title", "middle_name"),
+    'api.Email.get'   => array('return' => array("location_type_id", "email")),
+    'api.Phone.get'   => array('return' => array("location_type_id","phone_type_id", "phone")),
+    'api.Address.get' => array('return' => array("id", "name", "contact_id", "location_type_id", "is_primary", "is_billing", "street_address", "street_number", "street_number_suffix", "street_name", "street_type", "street_number_postdirectional", "city", "county_id.name", "county_id", "state_province_id.name", "state_province_id", "postal_code", "country_id.name", "country_id", "geo_code_1", "geo_code_2", "manual_geo_code", "supplemental_address_1", "supplemental_address_2", "supplemental_address_3")),
+    'api.Website.get' => array('return' => array("id", "contact_id", "url", "website_type_id", "website_type_id.label", "website_type_id.name")),
+    'options'         => array('limit'  => -1)
   );
+
+  $selectedProfileFields = getCCASelectedProfileFields();
+  $selectedCustomProfileFields = _cca_selected_custom_profile_fields($selectedProfileFields);
+  if (count($selectedCustomProfileFields)) {
+    $customFieldsToAdd = array_column($selectedCustomProfileFields, "db_field_name");
+    $contactparams['return'] = array_merge($contactparams['return'], $customFieldsToAdd);
+  }
 
   if(!$bycontactids) {
     if($isCiviTeamsInstalled && count($teams) == 0) {
@@ -332,6 +341,176 @@ function getContacts($params = array(), $bycontactids = FALSE, $contactids = arr
   }
 
   $contacts = civicrm_api3('Contact', 'get', $contactparams);
+  if (count($selectedProfileFields)) {
+    _cca_group_contacts_add_profile_fields($contacts, $selectedProfileFields);
+  }
 
   return $contacts;
+}
+
+function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFields) {
+  _cca_group_contacts_add_address_fields($contacts);
+  _cca_group_contacts_add_website_fields($contacts);
+  _cca_group_contacts_add_profile_fields_key($contacts);
+
+  $addressFieldsBAO = array(
+    'CRM_Core_BAO_Address',
+      'CRM_Core_BAO_Country',
+      'CRM_Core_DAO_County',
+      'CRM_Core_DAO_StateProvince',
+  );
+
+  $websiteFieldBAO = 'CRM_Core_BAO_Website';
+  $contactFieldBAO = 'CRM_Contact_BAO_Contact';
+
+  foreach ($selectedProfileFields as $selectedProfileField) {
+
+    $fieldtocheck = $selectedProfileField["name"];
+    if ($selectedProfileField["name"] == "prefix_id") {
+      $fieldtocheck = "individual_prefix";
+    }
+    if ($selectedProfileField["name"] == "suffix_id") {
+      $fieldtocheck = "individual_suffix";
+    }
+
+    if ($selectedProfileField["name"] == "gender_id") {
+      $fieldtocheck = "gender";
+    }
+
+    foreach ($contacts["values"] as $contactindex => $contact) {
+      $fieldValue = "";
+      if (($selectedProfileField['bao'] == $contactFieldBAO || $selectedProfileField['bao'] == '') && isset($contact[$fieldtocheck])) {
+        $fieldValue = $contact[$fieldtocheck];
+        unset($contacts["values"][$contactindex][$fieldtocheck]);
+        if($fieldtocheck != $selectedProfileField["name"]) {
+          unset($contacts["values"][$contactindex][$selectedProfileField["name"]]);
+        }
+      }
+      if (($selectedProfileField['bao'] == $websiteFieldBAO) && isset($contact['websitefields'][$fieldtocheck])) {
+        $fieldValue = $contact['websitefields'][$fieldtocheck];
+      }
+      if (in_array($selectedProfileField['bao'], $addressFieldsBAO) && isset($contact['addressfields'][$fieldtocheck])) {
+        $fieldValue = $contact['addressfields'][$fieldtocheck];
+      }
+      $contacts["values"][$contactindex]["profilefields"][$selectedProfileField["name"]] = $fieldValue;
+    }
+  }
+
+  _cca_group_contacts_clean_contact_fiels($contacts);
+}
+
+/**
+ * Return filtered custom profile fields.
+ *
+ * @param $profilefields
+ * @return array
+ */
+function _cca_selected_custom_profile_fields($profilefields) {
+    $customProfileFields = array();
+    foreach ($profilefields as $profilefield) {
+      if (isProfileFieldCustom($profilefield["name"])) {
+        $customProfileFields[] = $profilefield;
+      }
+    }
+    return $customProfileFields;
+}
+
+/**
+ * Modify Contacts array to generate addressfields values.
+ *
+ * @param $contacts
+ */
+function _cca_group_contacts_add_address_fields(&$contacts) {
+  $addressfieldskey = "addressfields";
+  foreach ($contacts["values"] as $index => $contact) {
+    if (!isset($contacts["values"][$index][$addressfieldskey])) {
+      $contacts["values"][$index][$addressfieldskey] = array();
+    }
+    if (isset($contact["api.Address.get"])) {
+      $addresses = $contact["api.Address.get"]["values"];
+      foreach ($addresses as $address) {
+        $locationid = 'Primary';
+        $secondarylocationid = 0;
+
+        if (isset($address['location_type_id'])) {
+          if ($address['is_primary']) {
+            $secondarylocationid = $address['location_type_id'];
+          } else {
+            $locationid = $address['location_type_id'];
+          }
+        }
+        $addressFields = _cca_group_contacts_get_address_fields($locationid, $address);
+        $contacts["values"][$index][$addressfieldskey] = array_merge($contacts["values"][$index][$addressfieldskey], $addressFields);
+
+        if($secondarylocationid) {
+          $addressFields = _cca_group_contacts_get_address_fields($secondarylocationid, $address);
+          $contacts["values"][$index][$addressfieldskey] = array_merge($contacts["values"][$index][$addressfieldskey], $addressFields);
+        }
+      }
+      unset($contacts["values"][$index]["api.Address.get"]);
+    }
+  }
+}
+
+function _cca_group_contacts_get_address_fields($locationid, $address) {
+  return array(
+    'address_name-'.$locationid => (isset($address["name"])) ? $address["name"] : '',
+    'country-'.$locationid => (isset($address["country_id.name"])) ? $address["country_id.name"] : '',
+    'county-'.$locationid => (isset($address["county_id.name"])) ? $address["county_id.name"] : '',
+    'city-'.$locationid => (isset($address["city"])) ? $address["city"] : '',
+    'postal_code-'.$locationid => (isset($address["postal_code"])) ? $address["postal_code"] : '',
+    'state_province-'.$locationid => (isset($address["state_province_id.name"])) ? $address["state_province_id.name"] : '',
+    'street_address-'.$locationid => (isset($address["street_address"])) ? $address["street_address"] : '',
+    'supplemental_address_1-'.$locationid => (isset($address["supplemental_address_1"])) ? $address["supplemental_address_1"] : '',
+    'supplemental_address_2-'.$locationid => (isset($address["supplemental_address_2"])) ? $address["supplemental_address_2"] : '',
+    'supplemental_address_3-'.$locationid => (isset($address["supplemental_address_3"])) ? $address["supplemental_address_3"] : '',
+  );
+}
+
+/**
+ * Modify Contacts array to generate websitefields values.
+ *
+ * @param $contacts
+ */
+function _cca_group_contacts_add_website_fields(&$contacts) {
+  $websitefieldskey = "websitefields";
+  foreach ($contacts["values"] as $index => $contact) {
+    if (!isset($contacts["values"][$index][$websitefieldskey])) {
+      $contacts["values"][$index][$websitefieldskey] = array();
+    }
+    if (isset($contact["api.Website.get"])) {
+      $websites = $contact["api.Website.get"]["values"];
+      foreach ($websites as $website) {
+        $websitetypeid = $website['website_type_id'];
+        $websiteFields = array(
+          'url-'.$websitetypeid => (isset($website["url"])) ? $website["url"] : '',
+        );
+        $contacts["values"][$index][$websitefieldskey] = array_merge($contacts["values"][$index][$websitefieldskey], $websiteFields);
+      }
+      unset($contacts["values"][$index]["api.Website.get"]);
+    }
+  }
+}
+
+/**
+ * Modify contacts array to add profilefields key.
+ *
+ * @param $contacts
+ */
+function _cca_group_contacts_add_profile_fields_key(&$contacts) {
+  foreach($contacts["values"] as $index => $contact) {
+    $contacts["values"][$index]["profilefields"] = array();
+  }
+}
+
+/**
+ * Clean contacts array to remove unwanted field values.
+ *
+ * @param $contacts
+ */
+function _cca_group_contacts_clean_contact_fiels(&$contacts) {
+  foreach($contacts["values"] as $index => $contact) {
+    unset($contacts["values"][$index]["addressfields"]);
+    unset($contacts["values"][$index]["websitefields"]);
+  }
 }

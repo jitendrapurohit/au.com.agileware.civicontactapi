@@ -589,7 +589,7 @@ function getCCASelectedProfile() {
  * @return array
  * @throws CiviCRM_API3_Exception
  */
-function getCCASelectedProfileFields() {
+function getCCASelectedProfileFields($onlyCustomFields = FALSE) {
   $ccaProfileId = Civi::settings()->get('cca_profile');
   $supportFieldNames = getCCASupportedProfileFields();
   $allProfilefields = CRM_Core_BAO_UFGroup::getFields($ccaProfileId, FALSE, NULL, NULL, NULL, TRUE);
@@ -599,7 +599,7 @@ function getCCASelectedProfileFields() {
     $field_key = explode("-", $field_key);
     $field_key = $field_key[0];
 
-    if (in_array($field_key, $supportFieldNames)) {
+    if (in_array($field_key, $supportFieldNames) && !$onlyCustomFields) {
       $allProfilefield["db_field_name"] = $field_key;
       $allProfilefield["iscustomfield"] = FALSE;
       $selectedProfileFields[] = $allProfilefield;

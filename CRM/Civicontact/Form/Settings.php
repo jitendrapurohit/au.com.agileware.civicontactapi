@@ -162,17 +162,20 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       }
 
       $customFieldIds = array_column($customFields, "custom_field_id");
-      $customFieldsToCheck = civicrm_api3("CustomField", "get", array(
+
+      if (count($customFieldIds)) {
+        $customFieldsToCheck = civicrm_api3("CustomField", "get", array(
           'id' => array('IN' => $customFieldIds),
           'sequential' => TRUE,
-      ));
+        ));
 
-      $customFieldsToCheck = $customFieldsToCheck["values"];
+        $customFieldsToCheck = $customFieldsToCheck["values"];
 
-      foreach ($customFieldsToCheck as $index => $customFieldToCheck) {
-        if(!isCustomFieldSupported($customFieldToCheck)) {
-          $customFieldToCheck["field_type"] = "Contact";
-          $unSupportedFields[] = $customFieldToCheck;
+        foreach ($customFieldsToCheck as $index => $customFieldToCheck) {
+          if(!isCustomFieldSupported($customFieldToCheck)) {
+              $customFieldToCheck["field_type"] = "Contact";
+              $unSupportedFields[] = $customFieldToCheck;
+          }
         }
       }
 
