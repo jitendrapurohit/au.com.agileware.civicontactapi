@@ -226,6 +226,14 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
         $contactsfound[$groupcontactlog["contactid"]] = $groupcontactlog["action"];
       }
     }
+
+    $modifiedcontactids = getCCAModifiedContactIds($params["createdat"]);
+    foreach($modifiedcontactids as $modifiedcontactid) {
+      if(!array_key_exists($modifiedcontactid, $contactsfound)) {
+          $contactsfound[$modifiedcontactid] = 'create';
+      }
+    }
+
     $contactids = array_keys($contactsfound);
 
     if ($paramsReturn) {
@@ -237,6 +245,23 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
 
   $contacts = getContacts($params);
   return tagContacts($contacts);
+}
+
+function getCCAModifiedContactIds($createdat) {
+  $group_ids = getCCAActiveGroups();
+  if(count($group_ids) == 0) {
+    $group_ids = array("-1");
+  }
+
+  $contactids = civicrm_api3("Contact", "get", array(
+    'IN'            => $group_ids,
+    'return'        => 'id',
+    'sequential'    => TRUE,
+    'modified_date' => $createdat,
+  ));
+
+  $contactids = array_column($contactids["values"], "contact_id");
+  return $contactids;
 }
 
 function getGroupContacts($groupname) {
@@ -392,7 +417,10 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
       if (in_array($selectedProfileField['bao'], $addressFieldsBAO) && isset($contact['addressfields'][$fieldtocheck])) {
         $fieldValue = $contact['addressfields'][$fieldtocheck];
       }
-      $contacts["values"][$contactindex]["profilefields"][$selectedProfileField["name"]] = $fieldValue;
+      $contacts["values"][$contactindex]["profilefields"][] = array(
+        'key' => $selectedProfileField["name"],
+        'value' => $fieldValue,
+      );
     }
   }
 

@@ -27,7 +27,7 @@ function civicrm_api3_uf_group_Ccaprofilefields($params) {
     if ($ccaprofile) {
       $selectedProfileFields = getCCASelectedProfileFields();
       if (!count($selectedProfileFields)) {
-        throw new API_Exception('CCA Profile is selected but with zero supported fields.', 404);
+         return _cca_contacts_empty_profile_fields_response();
       }
       _cca_api_modify_profile_fields($selectedProfileFields);
       return array(
@@ -36,8 +36,21 @@ function civicrm_api3_uf_group_Ccaprofilefields($params) {
         "values"   => $selectedProfileFields,
       );
     } else {
-      throw new API_Exception('CCA Profile is not selected.', 404);
+      return _cca_contacts_empty_profile_fields_response();
     }
+}
+
+/**
+ * Return empty profile fields reponse when profile is not selected or have no supported profile fields.
+ *
+ * @return array
+ */
+function _cca_contacts_empty_profile_fields_response() {
+  return array(
+    "is_error" => 0,
+    "count"    => 0,
+    "values"   => array(),
+  );
 }
 
 /**
