@@ -24,9 +24,9 @@ function _civicrm_api3_country_Getwithstates_spec(&$spec) {
  */
 function civicrm_api3_country_Getwithstates($params) {
   $countries = civicrm_api3("Country", "get", array(
-    'options'    => array('limit' => 0),
+    'options'    => array('limit' => 0, 'sort' => "name ASC"),
     'api.StateProvince.get' => array(
-        'options'    => array('limit' => 0),
+        'options'    => array('limit' => 0, 'sort' => "name ASC"),
         'sequential' => FALSE,
     ),
   ));

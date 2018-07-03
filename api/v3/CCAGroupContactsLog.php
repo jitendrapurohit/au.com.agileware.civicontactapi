@@ -380,9 +380,9 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
 
   $addressFieldsBAO = array(
     'CRM_Core_BAO_Address',
-      'CRM_Core_BAO_Country',
-      'CRM_Core_DAO_County',
-      'CRM_Core_DAO_StateProvince',
+    'CRM_Core_BAO_Country',
+    'CRM_Core_DAO_County',
+    'CRM_Core_DAO_StateProvince',
   );
 
   $websiteFieldBAO = 'CRM_Core_BAO_Website';
@@ -391,16 +391,6 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
   foreach ($selectedProfileFields as $selectedProfileField) {
 
     $fieldtocheck = $selectedProfileField["name"];
-    if ($selectedProfileField["name"] == "prefix_id") {
-      $fieldtocheck = "individual_prefix";
-    }
-    if ($selectedProfileField["name"] == "suffix_id") {
-      $fieldtocheck = "individual_suffix";
-    }
-
-    if ($selectedProfileField["name"] == "gender_id") {
-      $fieldtocheck = "gender";
-    }
 
     foreach ($contacts["values"] as $contactindex => $contact) {
       $fieldValue = "";
@@ -483,11 +473,11 @@ function _cca_group_contacts_add_address_fields(&$contacts) {
 function _cca_group_contacts_get_address_fields($locationid, $address) {
   return array(
     'address_name-'.$locationid => (isset($address["name"])) ? $address["name"] : '',
-    'country-'.$locationid => (isset($address["country_id.name"])) ? $address["country_id.name"] : '',
-    'county-'.$locationid => (isset($address["county_id.name"])) ? $address["county_id.name"] : '',
+    'country-'.$locationid => (isset($address["country_id"])) ? $address["country_id"] : '',
+    'county-'.$locationid => (isset($address["county_id"])) ? $address["county_id"] : '',
     'city-'.$locationid => (isset($address["city"])) ? $address["city"] : '',
     'postal_code-'.$locationid => (isset($address["postal_code"])) ? $address["postal_code"] : '',
-    'state_province-'.$locationid => (isset($address["state_province_id.name"])) ? $address["state_province_id.name"] : '',
+    'state_province-'.$locationid => (isset($address["state_province_id"])) ? $address["state_province_id"] : '',
     'street_address-'.$locationid => (isset($address["street_address"])) ? $address["street_address"] : '',
     'supplemental_address_1-'.$locationid => (isset($address["supplemental_address_1"])) ? $address["supplemental_address_1"] : '',
     'supplemental_address_2-'.$locationid => (isset($address["supplemental_address_2"])) ? $address["supplemental_address_2"] : '',
