@@ -24,19 +24,21 @@ function _civicrm_api3_uf_group_Ccaprofilefields_spec(&$spec) {
  */
 function civicrm_api3_uf_group_Ccaprofilefields($params) {
     $ccaprofile = getCCASelectedProfile();
+    $ccaProfileId = Civi::settings()->get('cca_profile');
     if ($ccaprofile) {
       $selectedProfileFields = getCCASelectedProfileFields();
       if (!count($selectedProfileFields)) {
-         return _cca_contacts_empty_profile_fields_response();
+         return _cca_contacts_empty_profile_fields_response($ccaProfileId);
       }
       _cca_api_modify_profile_fields($selectedProfileFields);
       return array(
         "is_error" => 0,
+        "group_id" => $ccaProfileId,
         "count"    => count($selectedProfileFields),
         "values"   => $selectedProfileFields,
       );
     } else {
-      return _cca_contacts_empty_profile_fields_response();
+      return _cca_contacts_empty_profile_fields_response($ccaProfileId);
     }
 }
 
@@ -45,10 +47,11 @@ function civicrm_api3_uf_group_Ccaprofilefields($params) {
  *
  * @return array
  */
-function _cca_contacts_empty_profile_fields_response() {
+function _cca_contacts_empty_profile_fields_response($ccaProfileId) {
   return array(
     "is_error" => 0,
     "count"    => 0,
+    "group_id" => $ccaProfileId,
     "values"   => array(),
   );
 }

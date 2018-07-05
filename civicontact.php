@@ -591,6 +591,9 @@ function getCCASelectedProfile() {
  */
 function getCCASelectedProfileFields($onlyCustomFields = FALSE) {
   $ccaProfileId = Civi::settings()->get('cca_profile');
+  if(!$ccaProfileId) {
+    return array();
+  }
   $supportFieldNames = getCCASupportedProfileFields();
   $allProfilefields = CRM_Core_BAO_UFGroup::getFields($ccaProfileId, FALSE, NULL, NULL, NULL, TRUE);
   $selectedProfileFields = array();
