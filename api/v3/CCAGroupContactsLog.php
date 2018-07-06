@@ -326,7 +326,10 @@ function getContacts($params = array(), $bycontactids = FALSE, $contactids = arr
     'options'         => array('limit'  => -1)
   );
 
-  $selectedProfileFields = getCCASelectedProfileFields();
+  $selectedProfileFields = civicrm_api3("UFGroup", "ccaprofilefields", array(
+    'selectionoptionswithkeys' => TRUE,
+  ));
+  $selectedProfileFields = $selectedProfileFields["values"];
   $selectedCustomProfileFields = _cca_selected_custom_profile_fields($selectedProfileFields);
   if (count($selectedCustomProfileFields)) {
     $customFieldsToAdd = array_column($selectedCustomProfileFields, "db_field_name");
@@ -388,17 +391,55 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
   $websiteFieldBAO = 'CRM_Core_BAO_Website';
   $contactFieldBAO = 'CRM_Contact_BAO_Contact';
 
-  foreach ($selectedProfileFields as $selectedProfileField) {
+  $countriesToFind = array();
+  $statesToFind = array();
 
+  foreach ($selectedProfileFields as $selectedProfileField) {
     $fieldtocheck = $selectedProfileField["name"];
 
     foreach ($contacts["values"] as $contactindex => $contact) {
       $fieldValue = "";
+      $fieldLabel = "";
       if (($selectedProfileField['bao'] == $contactFieldBAO || $selectedProfileField['bao'] == '') && isset($contact[$fieldtocheck])) {
         $fieldValue = $contact[$fieldtocheck];
         unset($contacts["values"][$contactindex][$fieldtocheck]);
         if($fieldtocheck != $selectedProfileField["name"]) {
           unset($contacts["values"][$contactindex][$selectedProfileField["name"]]);
+        }
+
+        $labelFields = array(
+          "gender_id" => "gender",
+          "prefix_id" => "individual_prefix",
+          "suffix_id" => "individual_suffix",
+        );
+
+        if(array_key_exists($fieldtocheck, $labelFields)) {
+          $fieldLabel =  $contact[$labelFields[$fieldtocheck]];
+        }
+        else if (isset($selectedProfileField["selectionvalues"])) {
+            $fieldLabel = array();
+            $fieldValueToCheck = $fieldValue;
+            if (!is_array($fieldValue)) {
+                $fieldValueToCheck = array($fieldValue);
+            }
+
+            foreach($fieldValueToCheck as $valuetocheck) {
+              if(isset($selectedProfileField["selectionvalues"][$valuetocheck])) {
+                $fieldLabel[] = $selectedProfileField["selectionvalues"][$valuetocheck]["val"];
+              }
+            }
+
+            if (count($fieldLabel) == 1) {
+              $fieldLabel = $fieldLabel[0];
+            }
+        } else if($selectedProfileField["html_type"] == "Select Country" && $fieldValue!='') {
+          $countriesToFind[] = $fieldValue;
+        } else if($selectedProfileField["html_type"] == "Multi-Select Country" && $fieldValue!='') {
+          $countriesToFind = array_merge($countriesToFind, $fieldValue);
+        } else if($selectedProfileField["html_type"] == "Multi-Select State/Province" && $fieldValue!='') {
+          $statesToFind = array_merge($statesToFind, $fieldValue);
+        } else if($selectedProfileField["html_type"] == "Select State/Province" && $fieldValue!='') {
+          $statesToFind[] = $fieldValue;
         }
       }
       if (($selectedProfileField['bao'] == $websiteFieldBAO) && isset($contact['websitefields'][$fieldtocheck])) {
@@ -406,13 +447,29 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
       }
       if (in_array($selectedProfileField['bao'], $addressFieldsBAO) && isset($contact['addressfields'][$fieldtocheck])) {
         $fieldValue = $contact['addressfields'][$fieldtocheck];
+        if(isset($contact['addressfields'][$fieldtocheck.'-label'])) {
+          $fieldLabel = $contact['addressfields'][$fieldtocheck.'-label'];
+        }
       }
+
+      if ($selectedProfileField["html_type"] == "Select Date" && $fieldValue != "") {
+        $fieldLabel = CRM_Utils_Date::customFormat($fieldValue, $selectedProfileField["smarty_view_format"]);
+      }
+
       $contacts["values"][$contactindex]["profilefields"][] = array(
         'key' => $selectedProfileField["name"],
         'value' => $fieldValue,
+        'html_type' => $selectedProfileField["html_type"],
+        'label' => ($fieldLabel) ? $fieldLabel : $fieldValue,
       );
     }
   }
+
+  $countriesToFind = array_unique($countriesToFind);
+  $statesToFind = array_unique($statesToFind);
+
+  _cca_group_contacts_add_country_fields($contacts, $countriesToFind);
+  _cca_group_contacts_add_state_fields($contacts, $statesToFind);
 
   _cca_group_contacts_clean_contact_fiels($contacts);
 }
@@ -474,10 +531,13 @@ function _cca_group_contacts_get_address_fields($locationid, $address) {
   return array(
     'address_name-'.$locationid => (isset($address["name"])) ? $address["name"] : '',
     'country-'.$locationid => (isset($address["country_id"])) ? $address["country_id"] : '',
+    'country-'.$locationid.'-label' => (isset($address["country_id.name"])) ? $address["country_id.name"] : '',
     'county-'.$locationid => (isset($address["county_id"])) ? $address["county_id"] : '',
+    'county-'.$locationid.'-label' => (isset($address["county_id.name"])) ? $address["county_id.name"] : '',
     'city-'.$locationid => (isset($address["city"])) ? $address["city"] : '',
     'postal_code-'.$locationid => (isset($address["postal_code"])) ? $address["postal_code"] : '',
     'state_province-'.$locationid => (isset($address["state_province_id"])) ? $address["state_province_id"] : '',
+    'state_province-'.$locationid.'-label' => (isset($address["state_province_id.name"])) ? $address["state_province_id.name"] : '',
     'street_address-'.$locationid => (isset($address["street_address"])) ? $address["street_address"] : '',
     'supplemental_address_1-'.$locationid => (isset($address["supplemental_address_1"])) ? $address["supplemental_address_1"] : '',
     'supplemental_address_2-'.$locationid => (isset($address["supplemental_address_2"])) ? $address["supplemental_address_2"] : '',
@@ -531,4 +591,70 @@ function _cca_group_contacts_clean_contact_fiels(&$contacts) {
     unset($contacts["values"][$index]["addressfields"]);
     unset($contacts["values"][$index]["websitefields"]);
   }
+}
+
+/**
+ * Add custom country values in contact array.
+ *
+ * @param $contacts
+ */
+function _cca_group_contacts_add_country_fields(&$contacts, $countries) {
+  if (count($countries)) {
+    $countries = civicrm_api3("Country", "get" , array(
+      "id" => array("IN" => $countries),
+    ));
+
+    $countries = $countries["values"];
+
+    foreach ($contacts["values"] as $index => $contact) {
+      foreach($contact["profilefields"] as $profilefieldindex => $profilefield) {
+        if ($profilefield["html_type"] == "Select Country" && $profilefield["value"] != '' && array_key_exists($profilefield["value"], $countries)) {
+          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] =  $countries[$profilefield["value"]]["name"];
+        }
+
+        if ($profilefield["html_type"] == "Multi-Select Country" && $profilefield["value"] != '') {
+          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = array();
+          foreach ($profilefield["value"] as $countryvalue) {
+            if (array_key_exists($countryvalue, $countries)) {
+              $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"][] =  $countries[$countryvalue]["name"];
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Add custom state values in contact array.
+ *
+ * @param $contacts
+ */
+function _cca_group_contacts_add_state_fields(&$contacts, $states) {
+  if (count($states)) {
+    $states = civicrm_api3("StateProvince", "get" , array(
+        "id" => array("IN" => $states),
+    ));
+
+    $states = $states["values"];
+
+    foreach ($contacts["values"] as $index => $contact) {
+        foreach($contact["profilefields"] as $profilefieldindex => $profilefield) {
+            if ($profilefield["html_type"] == "Select State/Province" && $profilefield["value"] != '' && array_key_exists($profilefield["value"], $states)) {
+                $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] =  $states[$profilefield["value"]]["name"];
+            }
+
+            if ($profilefield["html_type"] == "Multi-Select State/Province" && $profilefield["value"] != '') {
+                $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = array();
+                foreach ($profilefield["value"] as $countryvalue) {
+                    if (array_key_exists($countryvalue, $states)) {
+                        $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"][] =  $states[$countryvalue]["name"];
+                    }
+                }
+            }
+
+            unset($contacts["values"][$index]["profilefields"][$profilefieldindex]["html_type"]);
+        }
+    }
+ }
 }

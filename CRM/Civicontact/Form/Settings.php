@@ -53,7 +53,6 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       "String[-]Radio",
       "String[-]CheckBox",
       "String[-]Multi-Select",
-      "String[-]Autocomplete-Select",
       "Int[-]Text",
       "Int[-]Radio",
       "Memo[-]TextArea",

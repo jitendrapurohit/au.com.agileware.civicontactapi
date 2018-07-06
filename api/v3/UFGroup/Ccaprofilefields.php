@@ -30,7 +30,7 @@ function civicrm_api3_uf_group_Ccaprofilefields($params) {
       if (!count($selectedProfileFields)) {
          return _cca_contacts_empty_profile_fields_response($ccaProfileId);
       }
-      _cca_api_modify_profile_fields($selectedProfileFields);
+      _cca_api_modify_profile_fields($selectedProfileFields, $params);
       return array(
         "is_error" => 0,
         "group_id" => $ccaProfileId,
@@ -61,7 +61,7 @@ function _cca_contacts_empty_profile_fields_response($ccaProfileId) {
  *  - Add options for selection fields.
  * @param $selectedProfileFields
  */
-function _cca_api_modify_profile_fields(&$selectedProfileFields) {
+function _cca_api_modify_profile_fields(&$selectedProfileFields, $params) {
   foreach ($selectedProfileFields as &$selectedProfileField) {
     if(in_array($selectedProfileField["name"], array('gender_id', 'prefix_id', 'suffix_id'))) {
       $options = array();
@@ -87,10 +87,17 @@ function _cca_api_modify_profile_fields(&$selectedProfileFields) {
         $options = $field->getOptions('create');
         $optionsToSend = array();
         foreach($options as $key => $option) {
-          $optionsToSend[] = array(
-            "key" => $key,
-            "val" => $option,
-          );
+          if (isset($params["selectionoptionswithkeys"]) && $params["selectionoptionswithkeys"]) {
+            $optionsToSend[$key] = array(
+              "key" => $key,
+              "val" => $option,
+            );
+          } else {
+            $optionsToSend[] = array(
+              "key" => $key,
+              "val" => $option,
+            );
+          }
         }
         $selectedProfileField["selectionvalues"] = $optionsToSend;
       }
