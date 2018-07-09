@@ -584,6 +584,24 @@ function getCCASelectedProfile() {
 }
 
 /**
+ * Check if summary fields extension is installed.
+ *
+ * @return bool
+ * @throws CiviCRM_API3_Exception
+ */
+function isSummaryFieldsExtensionInstalled() {
+    $extension = civicrm_api3('Extension', 'get', array(
+        'sequential' => 1,
+        'full_name' => "net.ourpowerbase.sumfields",
+    ));
+    if ($extension["count"]) {
+      $extension = $extension["values"][0];
+      return ($extension["status"] == "installed");
+    }
+    return FALSE;
+}
+
+/**
  * Get CCA Selected profile Fields.
  *
  * @return array
@@ -596,12 +614,27 @@ function getCCASelectedProfileFields($onlyCustomFields = FALSE) {
   }
   $supportFieldNames = getCCASupportedProfileFields();
   $allProfilefields = CRM_Core_BAO_UFGroup::getFields($ccaProfileId, FALSE, NULL, NULL, NULL, TRUE);
+
+  $summaryfields = array();
+  if (isSummaryFieldsExtensionInstalled()) {
+    $summaryfields = civicrm_api3('CustomField', 'get', array(
+      'sequential'      => TRUE,
+      'return'          => array("id"),
+      'custom_group_id' => "Summary_Fields",
+      'options'         => array('limit' => 0),
+    ));
+
+    $summaryfields = $summaryfields["values"];
+    $summaryfields = array_column($summaryfields, "id");
+  }
+  
   $selectedProfileFields = array();
 
   foreach ($allProfilefields as $field_key => $allProfilefield) {
     $field_key = explode("-", $field_key);
     $field_key = $field_key[0];
 
+    $allProfilefield["issummaryfield"] = FALSE;
     if (in_array($field_key, $supportFieldNames) && !$onlyCustomFields) {
       $allProfilefield["db_field_name"] = $field_key;
       $allProfilefield["iscustomfield"] = FALSE;
@@ -612,6 +645,12 @@ function getCCASelectedProfileFields($onlyCustomFields = FALSE) {
       if(isCustomFieldSupported($allProfilefield)) {
         $allProfilefield["db_field_name"] = $field_key;
         $allProfilefield["iscustomfield"] = TRUE;
+
+        if(in_array(CRM_Core_BAO_CustomField::getKeyID($field_key), $summaryfields)) {
+          $allProfilefield["issummaryfield"] = TRUE;
+          $allProfilefield["is_view"] = 1;
+        }
+
         $selectedProfileFields[] = $allProfilefield;
       }
     }

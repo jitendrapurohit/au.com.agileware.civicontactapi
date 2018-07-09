@@ -49,6 +49,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
 
   public static $supportedCustomFieldDataTypes = array(
       "String[-]Text",
+      "Money[-]Text",
       "String[-]Select",
       "String[-]Radio",
       "String[-]CheckBox",
