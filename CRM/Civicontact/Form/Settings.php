@@ -297,7 +297,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   }
 
   /**
-   * Get the contact tile click actions availble.
+   * Get all user defined profiles.
    *
    * @return array
    */

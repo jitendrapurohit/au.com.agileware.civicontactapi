@@ -125,7 +125,7 @@ return array(
     'html_type' => 'Select',
     'is_domain' => 1,
     'is_contact' => 0,
-    'default' => 'default',
+    'default' => '',
     'description' => 'Select a profile you want to use on add/edit contact page of CiviContact App.',
     'title' => 'Contact Profile',
     'pseudoconstant' => array(
