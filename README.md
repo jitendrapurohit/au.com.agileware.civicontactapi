@@ -4,6 +4,7 @@ This is a helper extension for CiviContact mobile application. This extension **
 
 ## Usage
 Just install the extension and it is ready to be used with CiviContact mobile application.  
+For WordPress, download and apply patch to CiviCRM: rest-wp.patch
 
 CiviContact extension exposes contacts of selected groups only. To allow any group to be synced with mobile application follow the steps.
 1. Open Groups page (Contacts > Manage Groups)

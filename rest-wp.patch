@@ -1,0 +1,12 @@
+--- a/wp-content/plugins/civicrm/civicrm/CRM/Utils/REST.php
++++ b/wp-content/plugins/civicrm/civicrm/CRM/Utils/REST.php
+@@ -322,6 +322,9 @@ class CRM_Utils_REST {
+    */
+   public static function &buildParamList() {
+     $requestParams = CRM_Utils_Request::exportValues();
++    if (function_exists('wp_unslash')) {
++      $requestParams = wp_unslash($requestParams);
++    }
+     $params = array();
+
+     $skipVars = array(
