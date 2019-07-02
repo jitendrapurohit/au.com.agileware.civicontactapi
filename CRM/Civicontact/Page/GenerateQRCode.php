@@ -19,8 +19,13 @@ class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
     $config = CRM_Core_Config::singleton();
     $restpath = $config->resourceBase . 'extern/rest.php';
     $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-    $domain_name = $protocol.$_SERVER['SERVER_NAME'];
-    $restendpoint = CRM_Utils_System::url($restpath);
+    if (strpos($restpath, $protocol) !== FALSE) {
+      $restendpoint = $restpath;
+    } else {
+      $domain_name = $protocol.$_SERVER['SERVER_NAME'];
+      $restendpoint = $domain_name.$restpath;
+    }
+    \Civi::log()->info(print_r('civicontact qr code: ' . $restendpoint, TRUE));
 
     $group = civicrm_api3("Group","get",array(
        "name" => "CiviContact",
