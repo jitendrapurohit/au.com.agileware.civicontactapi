@@ -130,7 +130,7 @@ function civicontact_civicrm_tabset($tabsetName, &$tabs, $context) {
         }
         $url = CRM_Utils_System::url( 'civicrm/contact/view/qrcode', "cid=$contactID");
         $tab = array(
-          'title'   => ts('CCA QR Code'),
+          'title'   => ts('CiviContact Authentication'),
           'url'    => $url,
           'valid'   => 1,
           'active'  => 1,
