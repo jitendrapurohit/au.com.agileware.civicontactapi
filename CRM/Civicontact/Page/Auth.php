@@ -18,21 +18,20 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       exit();
     }
 
-    $key = new CRM_Civicontact_BAO_CCAKey();
-    $key->contact_id = $contactID;
-    $key->find(TRUE);
+    $hash = Civi::cache()
+                ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Validate checksum
-    if (!$key->hash || !CRM_Civicontact_BAO_CCAKey::validChecksum($contactID, $cs, $key->hash)) {
+    if (!$hash || !CRM_Civicontact_BAO_CCAKey::validChecksum($contactID, $cs, $hash)) {
       CRM_Utils_JSON::output([
         'error'   => 1,
-        'message' => 'Failed to authenticate.',
+        'message' => 'Failed to authenticate. Please generate a new QR code.',
       ]);
       exit();
     }
 
-    $key->hash = NULL;
-    $key->save();
+    Civi::cache()
+        ->delete(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Passed all validation
     $contact = new CRM_Contact_BAO_Contact();

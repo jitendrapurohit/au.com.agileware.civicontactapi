@@ -17,16 +17,13 @@ class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
     }
 
     // Checksum
-    $key = new CRM_Civicontact_BAO_CCAKey();
-    $key->contact_id = $contactID;
-    $key->find(TRUE);
-    if (!$key->hash || $key->validateHash(24)) {
-      $key->generateHash();
-      $key->save();
-      $key->find(TRUE);
+    $hash = Civi::cache()->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID);
+    if (!$hash) {
+      $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
+      Civi::cache()->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID, $hash, new DateInterval('P1D'));
     }
-    \Civi::log()->info($key->hash);
-    $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum($contact->id, strtotime($key->date), 24, $key->hash);
+
+    $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum($contact->id, NULL, 24, $hash);
 
     $config = CRM_Core_Config::singleton();
     $restpath = $config->resourceBase . 'extern/rest.php';
