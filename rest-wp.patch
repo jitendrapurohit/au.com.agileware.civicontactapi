@@ -1,12 +1,15 @@
---- a/wp-content/plugins/civicrm/civicrm/CRM/Utils/REST.php
-+++ b/wp-content/plugins/civicrm/civicrm/CRM/Utils/REST.php
-@@ -322,6 +322,9 @@ class CRM_Utils_REST {
-    */
-   public static function &buildParamList() {
-     $requestParams = CRM_Utils_Request::exportValues();
-+    if (function_exists('wp_unslash')) {
-+      $requestParams = wp_unslash($requestParams);
-+    }
-     $params = array();
+diff --git a/CRM/Utils/REST.php b/CRM/Utils/REST.php
+index b1df33aee1..094aa1b3d9 100644
+--- a/CRM/Utils/REST.php
++++ b/CRM/Utils/REST.php
+@@ -340,6 +340,10 @@ class CRM_Utils_REST {
 
-     $skipVars = array(
+     if (array_key_exists('json', $requestParams) && $requestParams['json'][0] == "{") {
+       $params = json_decode($requestParams['json'], TRUE);
++      // WordPress may break the JSON format, so having a second try here
++      if ($params === NULL && function_exists('wp_unslash')) {
++        $params = json_decode(wp_unslash($requestParams)['json'], TRUE);
++      }
+       if ($params === NULL) {
+         CRM_Utils_JSON::output([
+           'is_error' => 1,

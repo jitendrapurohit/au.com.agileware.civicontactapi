@@ -22,4 +22,10 @@
     <title>ActivateLicence</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/cca/auth</path>
+    <page_callback>CRM_Civicontact_Page_Auth</page_callback>
+    <title>Auth</title>
+    <access_arguments>make online contributions</access_arguments>
+  </item>
 </menu>
