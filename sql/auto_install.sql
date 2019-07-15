@@ -62,7 +62,6 @@
 
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS `civicrm_cca_key`;
 DROP TABLE IF EXISTS `civicrm_cca_groups_log`;
 DROP TABLE IF EXISTS `civicrm_cca_group_contacts_log`;
 
@@ -111,26 +110,4 @@ CREATE TABLE `civicrm_cca_groups_log` (
  
 ,          CONSTRAINT FK_civicrm_cca_groups_log_groupid FOREIGN KEY (`groupid`) REFERENCES `civicrm_group`(`id`) ON DELETE CASCADE  
 )    ;
-
--- /*******************************************************
--- *
--- * civicrm_cca_key
--- *
--- * CCA authentication
--- *
--- *******************************************************/
-CREATE TABLE `civicrm_cca_key` (
-
-
-     `id` int unsigned NOT NULL AUTO_INCREMENT  COMMENT 'Unique CCAKey ID',
-     `contact_id` int unsigned NOT NULL   COMMENT 'FK to Contact',
-     `hash` varchar(32)    COMMENT 'The hash for checksum',
-     `date` timestamp NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  
-,
-        PRIMARY KEY (`id`)
- 
- 
-,          CONSTRAINT FK_civicrm_cca_key_contact_id FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE CASCADE  
-)    ;
-
  
