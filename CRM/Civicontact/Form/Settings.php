@@ -108,8 +108,6 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
         $this->assign("{$setting['description']}_description", ts('description'));
       }
     }
-    $this->add('checkbox', 'cca_reset_qr_code', ts('Reset QR code'),ts('Reset QR code for all users. Note: this will clear the Civi cache.'));
-    $this->add('checkbox', 'cca_invalidate_all', ts('Drop authentication'),ts('Invalidate all authentications. Note: this will wipe out API key for all user.') );
     $this->addButtons(array(
       array(
         'type' => 'submit',
@@ -122,7 +120,6 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       ),
     ));
 
-    Civi::log()->info(print_r($_SERVER, TRUE));
     // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
     $this->isSSLEnabled = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off');

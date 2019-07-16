@@ -39,6 +39,18 @@
       </tr>
   {/if}
 {/foreach}
+    <tr>
+        <td class="label"><label for="cca_reset_qr_code">Reset QR code</label></td>
+        <td><input id="cca_reset_qr_code" name="cca_reset_qr_code" type="checkbox" value="1" class="crm-form-checkbox"><br>
+            <span class="description">Re-generate QR codes for all users. Note: this will clear the Civi cache.</span>
+        </td>
+    </tr>
+    <tr>
+        <td class="label"><label for="cca_invalidate_all">Drop authentication</label></td>
+        <td><input id="cca_invalidate_all" name="cca_invalidate_all" type="checkbox" value="1" class="crm-form-checkbox"><br>
+            <span class="description">Invalidate existing user authentication, requiring them to re-establish authentication using QR code. Note: this will wipe out API key for all users who are using the mobile App.</span>
+        </td>
+    </tr>
 </table>
 
 <div class="crm-submit-buttons">
