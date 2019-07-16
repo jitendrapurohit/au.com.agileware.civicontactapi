@@ -47,6 +47,8 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       $contact->save();
     }
 
+    CRM_Civicontact_Utils_Authentication::updateIP($contactID);
+
     CRM_Utils_JSON::output([
       'api_key' => $contact->api_key,
     ]);
