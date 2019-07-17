@@ -17,11 +17,12 @@ class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
     }
 
     // Checksum
-    $hash = Civi::cache()->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID);
+    $hash = Civi::cache('long')->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID);
     if (!$hash) {
       $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
-      Civi::cache()->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID, $hash, new DateInterval('P1D'));
+      Civi::cache('long')->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID, $hash, new DateInterval('P1D'));
     }
+    Civi::log()->debug($hash);
 
     $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum($contact->id, NULL, 24, $hash);
 
@@ -47,15 +48,15 @@ class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
 
     $licence_code = Civi::settings()->get('cca_licence_code');
     $qr_code_pay_load = array(
-      "contact_id"                => $contactID,
-      "contact_name"              => $contact->display_name,
-//      "api_key"                   => $contact->api_key,
-      "checksum"                  => $cs,
-      "site_key"                  => CIVICRM_SITE_KEY,
-      "rest_end_point"            => $restendpoint,
-      "groupid"                   => $groupid,
-      "domain_name"               => $_SERVER['SERVER_NAME'],
-      "licence_code"              => $licence_code,
+      "contact_id"     => $contactID,
+      "contact_name"   => $contact->display_name,
+      "checksum"       => $cs,
+      "site_key"       => CIVICRM_SITE_KEY,
+      "rest_end_point" => $restendpoint,
+      "groupid"        => $groupid,
+      "domain_name"    => $_SERVER['SERVER_NAME'],
+      "licence_code"   => $licence_code,
+      "auth_url"       => CRM_Utils_System::url('civicrm/cca/auth', NULL, TRUE),
     );
     \Civi::log()->info(print_r($qr_code_pay_load, TRUE));
 

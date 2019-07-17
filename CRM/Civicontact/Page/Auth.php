@@ -18,7 +18,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       exit();
     }
 
-    $hash = Civi::cache()
+    $hash = Civi::cache('long')
                 ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Validate checksum
@@ -30,19 +30,19 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       exit();
     }
 
-    Civi::cache()
+    Civi::cache('long')
         ->delete(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Passed all validation
-    $contact = new CRM_Contact_BAO_Contact();
+    $contact     = new CRM_Contact_BAO_Contact();
     $contact->id = $contactID;
 
-    if(!$contact->find(TRUE)) {
+    if (!$contact->find(TRUE)) {
       CRM_Core_Error::fatal(ts('Required cid parameter is invalid.'));
     }
 
-    if(!$contact->api_key) {
-      $api_key = md5($contact->id.rand(100000,999999).time());
+    if (!$contact->api_key) {
+      $api_key          = md5($contact->id . rand(100000, 999999) . time());
       $contact->api_key = $api_key;
       $contact->save();
     }
@@ -50,6 +50,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     CRM_Civicontact_Utils_Authentication::updateIP($contactID);
 
     CRM_Utils_JSON::output([
+      'error'   => 0,
       'api_key' => $contact->api_key,
     ]);
     exit();

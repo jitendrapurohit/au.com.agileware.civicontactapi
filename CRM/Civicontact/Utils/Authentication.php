@@ -5,7 +5,7 @@ class CRM_Civicontact_Utils_Authentication {
   /**
    * The prefix for key name in cache table
    */
-  public const HASH_PREFIX = 'CCA_HASH_CID_';
+  public const HASH_PREFIX = 'CCA-HASH-CID-';
 
   /**
    * The key name in settings table
