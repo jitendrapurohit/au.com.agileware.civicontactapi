@@ -468,11 +468,5 @@ function _civicontact_civix_civicrm_entityTypes(&$entityTypes) {
       'class' => 'CRM_Civicontact_DAO_CCAGroupsLog',
       'table' => 'civicrm_cca_groups_log',
     ),
-    'CRM_Civicontact_DAO_CCAKey' => 
-    array (
-      'name' => 'CCAKey',
-      'class' => 'CRM_Civicontact_DAO_CCAKey',
-      'table' => 'civicrm_cca_key',
-    ),
   ));
 }

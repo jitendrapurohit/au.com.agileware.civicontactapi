@@ -22,7 +22,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
                 ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Validate checksum
-    if (!$hash || !CRM_Civicontact_BAO_CCAKey::validChecksum($contactID, $cs, $hash)) {
+    if (!$hash || !CRM_Civicontact_Utils_Authentication::validChecksum($contactID, $cs, $hash)) {
       CRM_Utils_JSON::output([
         'error'   => 1,
         'message' => 'Failed to authenticate. Please generate a new QR code.',
