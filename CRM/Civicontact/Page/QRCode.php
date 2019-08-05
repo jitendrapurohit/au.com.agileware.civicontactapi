@@ -28,10 +28,32 @@ class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
       $contact->save();
     }
 
+    // Checksum
+    $hash = Civi::cache('long')->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID);
+    if (!$hash) {
+      $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
+      Civi::cache('long')->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID, $hash, new DateInterval('P1D'));
+    }
+    Civi::log()->debug($hash);
+
+    $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum($contact->id, NULL, 24, $hash);
+
+    $url = "https://civicontact.agileware.com.au?auth=" .
+      urlencode(CRM_Utils_System::url(
+      'civicrm/cca/auth',
+      ['cid' => $contactID, 'cs' => $cs],
+      TRUE,
+      NULL,
+      FALSE,
+      TRUE
+    ));
+
+    \Civi::log()->info(print_r($url, TRUE));
+
     $title = E::ts('QR Code of ')." ".$contact->display_name;
     CRM_Utils_System::setTitle($title);
 
-    $this->assign('qrcode', $url = CRM_Utils_System::url( 'civicrm/contact/generate/qrcode', "cid=$contactID"));
+    $this->assign('login_url', $url);
     $this->assign('title', $title);
     parent::run();
   }

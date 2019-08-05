@@ -49,10 +49,43 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
 
     CRM_Civicontact_Utils_Authentication::updateIP($contactID);
 
-    CRM_Utils_JSON::output([
-      'error'   => 0,
-      'api_key' => $contact->api_key,
-    ]);
+    // Reset endpoint
+    $config = CRM_Core_Config::singleton();
+    $restpath = $config->resourceBase . 'extern/rest.php';
+    $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    if (strpos($restpath, $protocol) !== FALSE) {
+      $restendpoint = $restpath;
+    } else {
+      $domain_name = $protocol.$_SERVER['SERVER_NAME'];
+      $restendpoint = $domain_name.$restpath;
+    }
+
+    // Group id
+    $group = civicrm_api3("Group","get",array(
+      "name" => "CiviContact",
+      "sequential" => true
+    ));
+
+    $groupid = 0;
+    if($group["count"] > 0) {
+      $groupid = $group["values"][0]["id"];
+    }
+
+    // Licence code
+    $licence_code = Civi::settings()->get('cca_licence_code');
+
+    CRM_Utils_JSON::output(
+      [
+        'error'          => 0,
+        'api_key'        => $contact->api_key,
+        "contact_name"   => $contact->display_name,
+        "site_key"       => CIVICRM_SITE_KEY,
+        "rest_end_point" => $restendpoint,
+        "groupid"        => $groupid,
+        "domain_name"    => $_SERVER['SERVER_NAME'],
+        "licence_code"   => $licence_code,
+      ]
+    );
     exit();
   }
 }
