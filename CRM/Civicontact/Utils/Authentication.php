@@ -177,20 +177,19 @@ class CRM_Civicontact_Utils_Authentication {
       $hash
     );
 
-    $url = "https://civicontact.agileware.com.au?auth=" .
+    // TODO change to https
+    $url = "civicontact://civicontact.agileware.com.au/login?auth=" .
       urlencode(
-        urlencode(
-          CRM_Utils_System::url(
-            'civicrm/cca/auth',
-            ['cid' => $contactId, 'cs' => $cs],
-            TRUE,
-            NULL,
-            FALSE,
-            TRUE
-          )
+        CRM_Utils_System::url(
+          'civicrm/cca/auth',
+          ['cid' => $contactId, 'cs' => $cs],
+          TRUE,
+          NULL,
+          FALSE,
+          TRUE
         )
       );
-    return $url;
+    return "<a href=\"$url\">Login to CiviContact</a>";
   }
 
   /**

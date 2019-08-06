@@ -77,6 +77,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     CRM_Utils_JSON::output(
       [
         'error'          => 0,
+        "contact_id"     => $contactID,
         'api_key'        => $contact->api_key,
         "contact_name"   => $contact->display_name,
         "site_key"       => CIVICRM_SITE_KEY,
