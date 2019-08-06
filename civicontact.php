@@ -706,21 +706,27 @@ function civicontact_civicrm_container($container) {
 }
 
 function civicontact_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
+  Civi::log()->info(print_r($e->getTokenProcessor()->getMessageTokens(), TRUE));
   $e->entity('civicontact')
-    ->register('authUrl', ts('Civicontact authentication URL'));
+    ->register('authUrl', ts('CiviContact authentication URL'));
 }
 
 function civicontact_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
   /** @var \Civi\Token\TokenRow $row */
   foreach ($e->getRows() as $row) {
     $row->format('text/html');
-    $contectId = $row->context['contactId'];
+    $contactId = $row->context['contactId'];
     $row->tokens(
       'civicontact',
       'authUrl',
       CRM_Civicontact_Utils_Authentication::generateAuthURL(
-        $contectId
+        $contactId
       )
     );
   }
+}
+
+function civicontact_civicrm_tokens(&$tokens) {
+  Civi::log()->info(print_r($tokens, TRUE));
+  $tokens['civicontact'] = ['authUrl' => ts('CiviContact authentication URL')];
 }
