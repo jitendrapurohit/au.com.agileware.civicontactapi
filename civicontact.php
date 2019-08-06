@@ -695,6 +695,7 @@ function isProfileFieldCustom($customFieldName) {
     return (strpos($customFieldName, "custom_")  === 0);
 }
 
+/**
 function civicontact_civicrm_container($container) {
   $container->addResource(new \Symfony\Component\Config\Resource\FileResource(__FILE__));
   $container->findDefinition('dispatcher')->addMethodCall('addListener',
@@ -704,9 +705,9 @@ function civicontact_civicrm_container($container) {
     array(\Civi\Token\Events::TOKEN_EVALUATE, 'civicontact_evaluate_tokens')
   );
 }
+*/
 
 function civicontact_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
-  Civi::log()->info(print_r($e->getTokenProcessor()->getMessageTokens(), TRUE));
   $e->entity('civicontact')
     ->register('authUrl', ts('CiviContact authentication URL'));
 }
@@ -728,5 +729,16 @@ function civicontact_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
 
 function civicontact_civicrm_tokens(&$tokens) {
   Civi::log()->info(print_r($tokens, TRUE));
-  $tokens['civicontact'] = ['authUrl' => ts('CiviContact authentication URL')];
+  $tokens['civicontact'] = ['civicontact.authUrl' => ts('CiviContact authentication URL')];
+}
+
+function civicontact_civicrm_tokenvalues(&$values, $cids, $job = NULL, $tokens = array(), $context = NULL) {
+  if (!empty($tokens['civicontact'])) {
+    foreach ($values as $id => $value) {
+      $values[$id]['civicontact.authUrl']
+        = CRM_Civicontact_Utils_Authentication::generateAuthURL(
+        $id
+      );
+    }
+  }
 }
