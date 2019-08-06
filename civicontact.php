@@ -1,5 +1,8 @@
 <?php
 
+use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\DependencyInjection\Definition;
+
 require_once 'civicontact.civix.php';
 use CRM_Civicontact_ExtensionUtil as E;
 
@@ -690,4 +693,34 @@ function isCustomFieldSupported($customFieldToCheck) {
  */
 function isProfileFieldCustom($customFieldName) {
     return (strpos($customFieldName, "custom_")  === 0);
+}
+
+function civicontact_civicrm_container($container) {
+  $container->addResource(new \Symfony\Component\Config\Resource\FileResource(__FILE__));
+  $container->findDefinition('dispatcher')->addMethodCall('addListener',
+    array(\Civi\Token\Events::TOKEN_REGISTER, 'civicontact_register_tokens')
+  );
+  $container->findDefinition('dispatcher')->addMethodCall('addListener',
+    array(\Civi\Token\Events::TOKEN_EVALUATE, 'civicontact_evaluate_tokens')
+  );
+}
+
+function civicontact_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
+  $e->entity('civicontact')
+    ->register('authUrl', ts('Civicontact authentication URL'));
+}
+
+function civicontact_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
+  /** @var \Civi\Token\TokenRow $row */
+  foreach ($e->getRows() as $row) {
+    $row->format('text/html');
+    $contectId = $row->context['contactId'];
+    $row->tokens(
+      'civicontact',
+      'authUrl',
+      CRM_Civicontact_Utils_Authentication::generateAuthURL(
+        $contectId
+      )
+    );
+  }
 }

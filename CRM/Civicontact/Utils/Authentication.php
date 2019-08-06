@@ -24,7 +24,7 @@ class CRM_Civicontact_Utils_Authentication {
   /**
    * Make sure the checksum is valid for the passed in contactID.
    *
-   * @param int $contactID
+   * @param int    $contactID
    * @param string $inputCheck
    *   Checksum to match against.
    * @param string $hash
@@ -41,7 +41,12 @@ class CRM_Civicontact_Utils_Authentication {
     $inputTS = CRM_Utils_Array::value(1, $input);
     $inputLF = CRM_Utils_Array::value(2, $input);
 
-    $check = CRM_Contact_BAO_Contact_Utils::generateChecksum($contactID, $inputTS, $inputLF, $hash);
+    $check = CRM_Contact_BAO_Contact_Utils::generateChecksum(
+      $contactID,
+      $inputTS,
+      $inputLF,
+      $hash
+    );
 
     if (!hash_equals($check, $inputCheck)) {
       return FALSE;
@@ -120,6 +125,72 @@ class CRM_Civicontact_Utils_Authentication {
       unset($settings['users'][$id]);
     }
     self::saveSettings($settings);
+  }
+
+  /**
+   * Generate the authentication URL for the given contact
+   * @param int $contactId
+   *
+   * @return string
+   *               The url
+   * @throws \Exception
+   */
+  public static function generateAuthURL($contactId) {
+    if (!$contactId) {
+      CRM_Core_Error::fatal(
+        ts('Required cid parameter invalid or not provided.')
+      );
+      return "";
+    }
+
+    $contact     = new CRM_Contact_BAO_Contact();
+    $contact->id = $contactId;
+
+    if (!$contact->find(TRUE)) {
+      CRM_Core_Error::fatal(ts('Required cid parameter is invalid.'));
+      return "";
+    }
+
+    if (!$contact->api_key) {
+      $api_key          = md5($contact->id . rand(100000, 999999) . time());
+      $contact->api_key = $api_key;
+      $contact->save();
+    }
+
+    // Checksum
+    $hash = Civi::cache('long')->get(
+      CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactId
+    );
+    if (!$hash) {
+      $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
+      Civi::cache('long')->set(
+        CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactId,
+        $hash,
+        new DateInterval('P1D')
+      );
+    }
+
+    $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum(
+      $contact->id,
+      NULL,
+      24,
+      $hash
+    );
+
+    $url = "https://civicontact.agileware.com.au?auth=" .
+      urlencode(
+        urlencode(
+          CRM_Utils_System::url(
+            'civicrm/cca/auth',
+            ['cid' => $contactId, 'cs' => $cs],
+            TRUE,
+            NULL,
+            FALSE,
+            TRUE
+          )
+        )
+      );
+    return $url;
   }
 
   /**
