@@ -1,4 +1,4 @@
-# CiviContact (au.com.agileware.civicontact)
+# CiviContact (au.com.agileware.civicontactapi)
 ## About
 This is a helper extension for CiviContact mobile application. This extension **must** be installed to use the CiviContact mobile application.   
 
