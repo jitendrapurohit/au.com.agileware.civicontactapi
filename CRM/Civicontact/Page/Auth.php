@@ -30,8 +30,8 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       exit();
     }
 
-    Civi::cache('long')
-        ->delete(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
+    //Civi::cache('long')
+    //    ->delete(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Passed all validation
     $contact     = new CRM_Contact_BAO_Contact();

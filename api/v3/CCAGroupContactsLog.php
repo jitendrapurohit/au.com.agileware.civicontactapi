@@ -57,6 +57,29 @@ function civicrm_api3_c_c_a_group_contacts_log_create($params) {
 }
 
 /**
+ * CCAGroupContactsLog.countcontact API
+ *
+ * @param array $params
+ *
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
+function civicrm_api3_c_c_a_group_contacts_log_countcontact($params) {
+  $params["group"] = array('IN' => getCCAActiveGroups());
+  $params['first_name'] = ['IS NOT NULL' => 1];
+  $params['return'] = ['id'];
+  $contacts = civicrm_api3('Contact', 'get', $params);
+  $ids = [];
+  if (!$contacts['is_error']) {
+    foreach ($contacts['values'] as $contact) {
+      $ids[] = $contact['contact_id'];
+    }
+  }
+  $contacts['values'] = $ids;
+  return $contacts;
+}
+
+/**
  * CCAGroupContactsLog.get API
  *
  * @param array $params

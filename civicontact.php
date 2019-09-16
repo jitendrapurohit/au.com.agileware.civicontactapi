@@ -306,6 +306,7 @@ function getGroupDetailsByIds($groupids, $returnDirectResponse = FALSE) {
         'sequential' => 1,
         'return' => array("id", "title"),
         'id'     => array("IN" => $groupids),
+        'api.Contact.getcount' => ['group' => "\$value.id"],
     );
     $group_ids = civicrm_api3('Group', 'get', $group_params);
     if(!$returnDirectResponse) {
