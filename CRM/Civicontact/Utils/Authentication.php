@@ -178,7 +178,7 @@ class CRM_Civicontact_Utils_Authentication {
     );
 
     // TODO change to https
-    $url = "civicontact://civicontact.agileware.com.au/login?auth=" .
+    $url = "https://civicontact.com.au/login?auth=" .
       urlencode(
         CRM_Utils_System::url(
           'civicrm/cca/auth',
