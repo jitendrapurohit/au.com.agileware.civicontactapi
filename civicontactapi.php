@@ -3,7 +3,7 @@
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\Definition;
 
-require_once 'civicontact.civix.php';
+require_once 'civicontactapi.civix.php';
 use CRM_Civicontact_ExtensionUtil as E;
 
 /**
@@ -11,8 +11,8 @@ use CRM_Civicontact_ExtensionUtil as E;
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
-function civicontact_civicrm_config(&$config) {
-  _civicontact_civix_civicrm_config($config);
+function civicontactapi_civicrm_config(&$config) {
+  _civicontactapi_civix_civicrm_config($config);
 }
 
 /**
@@ -20,8 +20,8 @@ function civicontact_civicrm_config(&$config) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
  */
-function civicontact_civicrm_xmlMenu(&$files) {
-  _civicontact_civix_civicrm_xmlMenu($files);
+function civicontactapi_civicrm_xmlMenu(&$files) {
+  _civicontactapi_civix_civicrm_xmlMenu($files);
 }
 
 /**
@@ -29,8 +29,8 @@ function civicontact_civicrm_xmlMenu(&$files) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
-function civicontact_civicrm_install() {
-  _civicontact_civix_civicrm_install();
+function civicontactapi_civicrm_install() {
+  _civicontactapi_civix_civicrm_install();
 }
 
 /**
@@ -38,8 +38,8 @@ function civicontact_civicrm_install() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
  */
-function civicontact_civicrm_postInstall() {
-  _civicontact_civix_civicrm_postInstall();
+function civicontactapi_civicrm_postInstall() {
+  _civicontactapi_civix_civicrm_postInstall();
 }
 
 /**
@@ -47,8 +47,8 @@ function civicontact_civicrm_postInstall() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
-function civicontact_civicrm_uninstall() {
-  _civicontact_civix_civicrm_uninstall();
+function civicontactapi_civicrm_uninstall() {
+  _civicontactapi_civix_civicrm_uninstall();
 }
 
 /**
@@ -56,8 +56,8 @@ function civicontact_civicrm_uninstall() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
-function civicontact_civicrm_enable() {
-  _civicontact_civix_civicrm_enable();
+function civicontactapi_civicrm_enable() {
+  _civicontactapi_civix_civicrm_enable();
 }
 
 /**
@@ -65,8 +65,8 @@ function civicontact_civicrm_enable() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
  */
-function civicontact_civicrm_disable() {
-  _civicontact_civix_civicrm_disable();
+function civicontactapi_civicrm_disable() {
+  _civicontactapi_civix_civicrm_disable();
 }
 
 /**
@@ -74,8 +74,8 @@ function civicontact_civicrm_disable() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
  */
-function civicontact_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _civicontact_civix_civicrm_upgrade($op, $queue);
+function civicontactapi_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+  return _civicontactapi_civix_civicrm_upgrade($op, $queue);
 }
 
 /**
@@ -87,8 +87,8 @@ function civicontact_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_caseTypes
  */
-function civicontact_civicrm_caseTypes(&$caseTypes) {
-  _civicontact_civix_civicrm_caseTypes($caseTypes);
+function civicontactapi_civicrm_caseTypes(&$caseTypes) {
+  _civicontactapi_civix_civicrm_caseTypes($caseTypes);
 }
 
 /**
@@ -101,8 +101,8 @@ function civicontact_civicrm_caseTypes(&$caseTypes) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_angularModules
  */
-function civicontact_civicrm_angularModules(&$angularModules) {
-  _civicontact_civix_civicrm_angularModules($angularModules);
+function civicontactapi_civicrm_angularModules(&$angularModules) {
+  _civicontactapi_civix_civicrm_angularModules($angularModules);
 }
 
 /**
@@ -110,14 +110,14 @@ function civicontact_civicrm_angularModules(&$angularModules) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
-function civicontact_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
-  _civicontact_civix_civicrm_alterSettingsFolders($metaDataFolders);
+function civicontactapi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  _civicontactapi_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
 /**
  * Implements hook_civicrm_tabset().
  */
-function civicontact_civicrm_tabset($tabsetName, &$tabs, $context) {
+function civicontactapi_civicrm_tabset($tabsetName, &$tabs, $context) {
   if($tabsetName == "civicrm/contact/view") {
     if (!empty($context)) {
       $session = CRM_Core_Session::singleton();
@@ -153,7 +153,7 @@ function civicontact_civicrm_tabset($tabsetName, &$tabs, $context) {
  * @param string $formName
  * @param CRM_Core_Form $form
  */
-function civicontact_civicrm_postProcess($formName, &$form) {
+function civicontactapi_civicrm_postProcess($formName, &$form) {
     if ($formName == "CRM_Group_Form_Edit" && isCiviTeamsExtensionInstalled() && ($form->getAction() == CRM_Core_Action::ADD || $form->getAction() == CRM_Core_Action::UPDATE)) {
         $teams = $form->getSubmitValue( 'teams' );
         $teams = explode("," ,$teams);
@@ -341,7 +341,7 @@ function getGroupContactsCount($groupname) {
  * @param string $formName
  * @param CRM_Core_Form $form
  */
-function civicontact_civicrm_buildForm($formName, &$form) {
+function civicontactapi_civicrm_buildForm($formName, &$form) {
     if ($formName == 'CRM_Group_Form_Edit' && ($form->getAction() == CRM_Core_Action::ADD || $form->getAction() == CRM_Core_Action::UPDATE)) {
         if(isCiviTeamsExtensionInstalled()) {
             $dbteams = civicrm_api3("Team", "get", array(
@@ -389,7 +389,7 @@ function civicontact_civicrm_buildForm($formName, &$form) {
 /**
  * Implementation of hook_civicrm_entityTypes
  */
-function civicontact_civicrm_entityTypes(&$entityTypes) {
+function civicontactapi_civicrm_entityTypes(&$entityTypes) {
     if(!isset($entityTypes["CRM_Civicontact_DAO_CCAGroupsLog"])) {
         $entityTypes[] = array(
             'name'  => 'CCAGroupsLog',
@@ -410,10 +410,10 @@ function civicontact_civicrm_entityTypes(&$entityTypes) {
 /**
  * Implements _civicrm_managed().
  */
-function civicontact_civicrm_managed(&$entities) {
+function civicontactapi_civicrm_managed(&$entities) {
     $cca_sync_custom_key = getCCASyncCustomFieldKey();
     $entities[] = array(
-        'module'  => 'au.com.agileware.civicontact',
+        'module'  => 'au.com.agileware.civicontactapi',
         'name'    => 'ccaautogroup',
         'entity'  => 'Group',
         'cleanup' => 'never',
@@ -422,7 +422,7 @@ function civicontact_civicrm_managed(&$entities) {
             'name'    => 'CiviContact',
             'title'   => 'CiviContact',
             'description' => "Contacts from CiviContact will be added in this group.",
-            'source' => "au.com.agileware.civicontact",
+            'source' => "au.com.agileware.civicontactapi",
             'group_type' => "Access Control",
             'is_reserved' => 1,
             $cca_sync_custom_key => 1,
@@ -437,7 +437,7 @@ function civicontact_civicrm_managed(&$entities) {
  *
  * @param array $menu
  */
-function civicontact_civicrm_navigationMenu(&$menu) {
+function civicontactapi_civicrm_navigationMenu(&$menu) {
     $maxID = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
     $navId = $maxID + 287;
   
@@ -496,7 +496,7 @@ function getCCASyncCustomFieldKey() {
 /**
  * Implements hook_civicrm_post().
  */
-function civicontact_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+function civicontactapi_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if($objectName == "GroupContact") {
     $contactid = $objectRef[0];
     if($op == "delete" || $op == "create") {
@@ -697,23 +697,23 @@ function isProfileFieldCustom($customFieldName) {
 }
 
 /**
-function civicontact_civicrm_container($container) {
+function civicontactapi_civicrm_container($container) {
   $container->addResource(new \Symfony\Component\Config\Resource\FileResource(__FILE__));
   $container->findDefinition('dispatcher')->addMethodCall('addListener',
-    array(\Civi\Token\Events::TOKEN_REGISTER, 'civicontact_register_tokens')
+    array(\Civi\Token\Events::TOKEN_REGISTER, 'civicontactapi_register_tokens')
   );
   $container->findDefinition('dispatcher')->addMethodCall('addListener',
-    array(\Civi\Token\Events::TOKEN_EVALUATE, 'civicontact_evaluate_tokens')
+    array(\Civi\Token\Events::TOKEN_EVALUATE, 'civicontactapi_evaluate_tokens')
   );
 }
 */
 
-function civicontact_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
+function civicontactapi_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
   $e->entity('civicontact')
     ->register('authUrl', ts('CiviContact authentication URL'));
 }
 
-function civicontact_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
+function civicontactapi_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
   /** @var \Civi\Token\TokenRow $row */
   foreach ($e->getRows() as $row) {
     $row->format('text/html');
@@ -728,12 +728,12 @@ function civicontact_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
   }
 }
 
-function civicontact_civicrm_tokens(&$tokens) {
+function civicontactapi_civicrm_tokens(&$tokens) {
   Civi::log()->info(print_r($tokens, TRUE));
   $tokens['civicontact'] = ['civicontact.authUrl' => ts('CiviContact authentication URL')];
 }
 
-function civicontact_civicrm_tokenvalues(&$values, $cids, $job = NULL, $tokens = array(), $context = NULL) {
+function civicontactapi_civicrm_tokenvalues(&$values, $cids, $job = NULL, $tokens = array(), $context = NULL) {
   if (!empty($tokens['civicontact'])) {
     foreach ($values as $id => $value) {
       $values[$id]['civicontact.authUrl']

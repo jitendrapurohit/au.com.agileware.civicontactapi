@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<extension key="au.com.agileware.civicontact" type="module">
-  <file>civicontact</file>
-  <name>CiviContact</name>
-  <description>Helper extension for CiviContact mobile application.</description>
+<extension key="au.com.agileware.civicontactapi" type="module">
+  <file>civicontactapi</file>
+  <name>CiviContact API</name>
+  <description>Backend extension for CiviContact mobile application.</description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>Agileware</author>

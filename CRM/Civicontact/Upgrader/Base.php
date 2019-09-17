@@ -46,7 +46,7 @@ class CRM_Civicontact_Upgrader_Base {
     if (!self::$instance) {
       // FIXME auto-generate
       self::$instance = new CRM_Civicontact_Upgrader(
-        'au.com.agileware.civicontact',
+        'au.com.agileware.civicontactapi',
         realpath(__DIR__ . '/../../../')
       );
     }
