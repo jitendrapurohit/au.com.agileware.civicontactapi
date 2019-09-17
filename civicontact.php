@@ -1,5 +1,8 @@
 <?php
 
+use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\DependencyInjection\Definition;
+
 require_once 'civicontact.civix.php';
 use CRM_Civicontact_ExtensionUtil as E;
 
@@ -303,6 +306,7 @@ function getGroupDetailsByIds($groupids, $returnDirectResponse = FALSE) {
         'sequential' => 1,
         'return' => array("id", "title"),
         'id'     => array("IN" => $groupids),
+        'api.Contact.getcount' => ['group' => "\$value.id"],
     );
     $group_ids = civicrm_api3('Group', 'get', $group_params);
     if(!$returnDirectResponse) {
@@ -690,4 +694,52 @@ function isCustomFieldSupported($customFieldToCheck) {
  */
 function isProfileFieldCustom($customFieldName) {
     return (strpos($customFieldName, "custom_")  === 0);
+}
+
+/**
+function civicontact_civicrm_container($container) {
+  $container->addResource(new \Symfony\Component\Config\Resource\FileResource(__FILE__));
+  $container->findDefinition('dispatcher')->addMethodCall('addListener',
+    array(\Civi\Token\Events::TOKEN_REGISTER, 'civicontact_register_tokens')
+  );
+  $container->findDefinition('dispatcher')->addMethodCall('addListener',
+    array(\Civi\Token\Events::TOKEN_EVALUATE, 'civicontact_evaluate_tokens')
+  );
+}
+*/
+
+function civicontact_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
+  $e->entity('civicontact')
+    ->register('authUrl', ts('CiviContact authentication URL'));
+}
+
+function civicontact_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
+  /** @var \Civi\Token\TokenRow $row */
+  foreach ($e->getRows() as $row) {
+    $row->format('text/html');
+    $contactId = $row->context['contactId'];
+    $row->tokens(
+      'civicontact',
+      'authUrl',
+      CRM_Civicontact_Utils_Authentication::generateAuthURL(
+        $contactId
+      )
+    );
+  }
+}
+
+function civicontact_civicrm_tokens(&$tokens) {
+  Civi::log()->info(print_r($tokens, TRUE));
+  $tokens['civicontact'] = ['civicontact.authUrl' => ts('CiviContact authentication URL')];
+}
+
+function civicontact_civicrm_tokenvalues(&$values, $cids, $job = NULL, $tokens = array(), $context = NULL) {
+  if (!empty($tokens['civicontact'])) {
+    foreach ($values as $id => $value) {
+      $values[$id]['civicontact.authUrl']
+        = CRM_Civicontact_Utils_Authentication::generateAuthURL(
+        $id
+      );
+    }
+  }
 }
