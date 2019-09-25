@@ -1,6 +1,6 @@
-# CiviContact (au.com.agileware.civicontactapi)
+# CiviContact API (au.com.agileware.civicontactapi)
 ## About
-This is a helper extension for CiviContact mobile application. This extension **must** be installed to use the CiviContact mobile application.   
+This is a [CiviCRM](https://civicrm.org) extension to support the CiviContact mobile application. This extension **must** be installed on the CiviCRM site for the CiviContact mobile application to function.   
 
 ## Usage
 Just install the extension and it is ready to be used with CiviContact mobile application.  
@@ -33,5 +33,4 @@ Open Administer > CiviContact > Settings to open extension's configuration page.
 
 1. **Enable Global Config**, it is disabled by default. If it is set as "yes" application config will be same for all users and it can't be changed from App settings.
 2. **Email to Activity**, This is global configuration, if the above setting is turned on we will consider this config for all the users. This config is used to record an activity when a user emails any contact.
-3. **Licence Code**, Please contact [Agileware](https://agileware.com.au/contact) to get licence code for CiviContact. If the licence is added and validated we won't show any ads in mobile application to monetize it.
-4. **Sync Interval**, This is again global configuration, if the first setting is turned on we will consider this config for all the users. This config is used to set sync interval at which sync should get executed in mobile application.
+3. **Sync Interval**, This is again global configuration, if the first setting is turned on we will consider this config for all the users. This config is used to set sync interval at which sync should get executed in mobile application.
