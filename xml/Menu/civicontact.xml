@@ -28,4 +28,9 @@
     <title>Auth</title>
     <access_arguments>make online contributions</access_arguments>
   </item>
+  <item>
+    <path>civicrm/cca/rest</path>
+    <page_callback>CRM_Civicontact_Rest::api</page_callback>
+    <access_arguments>make online contributions</access_arguments>
+  </item>
 </menu>

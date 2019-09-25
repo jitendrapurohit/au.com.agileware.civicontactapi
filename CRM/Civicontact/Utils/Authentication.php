@@ -12,6 +12,12 @@ class CRM_Civicontact_Utils_Authentication {
    */
   public const SETTINGS = 'cca_auth';
 
+  public const ORIGINS
+    = [
+      'ionic://localhost',
+      'http://localhost'
+    ];
+
   /**
    * Generate a hash string
    *
@@ -129,6 +135,7 @@ class CRM_Civicontact_Utils_Authentication {
 
   /**
    * Generate the authentication URL for the given contact
+   *
    * @param int $contactId
    *
    * @return string
@@ -190,6 +197,18 @@ class CRM_Civicontact_Utils_Authentication {
         )
       );
     return "<a href=\"$url\">Login to CiviContact</a>";
+  }
+
+  public static function addCORSHeader() {
+    foreach ($_SERVER as $key => $value) {
+      if ($key == 'HTTP_ORIGIN') {
+        if (in_array($value, self::ORIGINS)) {
+          header('Access-Control-Allow-Origin: ' . $value);
+          return TRUE;
+        }
+      }
+    }
+    return FALSE;
   }
 
   /**

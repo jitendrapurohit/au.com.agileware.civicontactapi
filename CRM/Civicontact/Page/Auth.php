@@ -11,22 +11,33 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       $cs        = CRM_Utils_Request::retrieve('cs', 'Text');
     } catch (CRM_Core_Exception $e) {
       http_response_code(400);
-      CRM_Utils_JSON::output([
-        'error'   => 1,
-        'message' => 'Parameters missing.',
-      ]);
+      CRM_Utils_JSON::output(
+        [
+          'error'   => 1,
+          'message' => 'Parameters missing.',
+        ]
+      );
       exit();
     }
+    CRM_Civicontact_Utils_Authentication::addCORSHeader();
 
     $hash = Civi::cache('long')
-                ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
+      ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Validate checksum
-    if (!$hash || !CRM_Civicontact_Utils_Authentication::validChecksum($contactID, $cs, $hash)) {
-      CRM_Utils_JSON::output([
-        'error'   => 1,
-        'message' => 'Failed to authenticate. Please generate a new QR code.',
-      ]);
+    if (!$hash
+      || !CRM_Civicontact_Utils_Authentication::validChecksum(
+        $contactID,
+        $cs,
+        $hash
+      )
+    ) {
+      CRM_Utils_JSON::output(
+        [
+          'error'   => 1,
+          'message' => 'Failed to authenticate. Please generate a new QR code.',
+        ]
+      );
       exit();
     }
 
@@ -50,24 +61,27 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     CRM_Civicontact_Utils_Authentication::updateIP($contactID);
 
     // Reset endpoint
-    $config = CRM_Core_Config::singleton();
-    $restpath = $config->resourceBase . 'extern/rest.php';
-    $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-    if (strpos($restpath, $protocol) !== FALSE) {
-      $restendpoint = $restpath;
-    } else {
-      $domain_name = $protocol.$_SERVER['SERVER_NAME'];
-      $restendpoint = $domain_name.$restpath;
-    }
+    $restendpoint = CRM_Utils_System::url(
+      'civicrm/cca/rest',
+      NULL,
+      TRUE,
+      NULL,
+      FALSE,
+      TRUE
+    );
 
     // Group id
-    $group = civicrm_api3("Group","get",array(
-      "name" => "CiviContact",
-      "sequential" => true
-    ));
+    $group = civicrm_api3(
+      "Group",
+      "get",
+      [
+        "name"       => "CiviContact",
+        "sequential" => TRUE,
+      ]
+    );
 
     $groupid = 0;
-    if($group["count"] > 0) {
+    if ($group["count"] > 0) {
       $groupid = $group["values"][0]["id"];
     }
 
