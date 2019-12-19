@@ -23,8 +23,10 @@ To login into the mobile application follow the steps.
 1. Click on **Scan QR Code** on Welcome screen, That will ask you for permission to access camera if you have not already given the access.
 2. Clicking allow will open the camera with QR code scanner.
 3. Login into CiviCRM
-4. Open your profile page, a new last tab is added with name **CiviContact Authentication** by CiviContact extension. Click on it.
-5. Now scan this QR code from mobile device.
+4. Open the CiviCRM Contact which is linked to your website login (your CiviCRM Contact).
+5. View the Contact, open the tab is added with name **CiviContact Authentication**.
+6. Click on this tab and a QR code should now be displayed.
+7. Scan this QR code using the CiviContact app.
 
 And that's all! CiviContact mobile app will fetch all the contacts from the **Sync to CiviContact** groups.
 
