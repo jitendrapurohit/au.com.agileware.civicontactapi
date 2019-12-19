@@ -1,5 +1,5 @@
 Package: au.com.agileware.civicontactapi
-Copyright (C) 2017, Alok Patel <alok@agileware.com.au>
+Copyright (C) 2019, Agileware Pty Ltd <sales@agileware.com.au>
 Licensed under the GNU Affero Public License 3.0 (below).
 
 -------------------------------------------------------------------------------
