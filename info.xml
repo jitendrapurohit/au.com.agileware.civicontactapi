@@ -15,8 +15,8 @@
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
     <url desc="CiviContact Mobile Application">https://play.google.com/store/apps/details?id=au.com.agileware.civicontact</url>
   </urls>
-  <releaseDate>2019-09-17</releaseDate>
-  <version>0.2.6</version>
+  <releaseDate>2019-12-20</releaseDate>
+  <version>0.3.0</version>
   <versioncode>7</versioncode>
   <develStage>alpha</develStage>
   <compatibility>
