@@ -18,9 +18,9 @@
   <releaseDate>2019-12-20</releaseDate>
   <version>0.3.0</version>
   <versioncode>7</versioncode>
-  <develStage>alpha</develStage>
+  <develStage>beta</develStage>
   <compatibility>
-    <ver>4.7</ver>
+    <ver>5.0</ver>
   </compatibility>
   <civix>
     <namespace>CRM/Civicontact</namespace>

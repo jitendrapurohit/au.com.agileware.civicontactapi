@@ -1,31 +1,34 @@
 # CiviContact API (au.com.agileware.civicontactapi)
 ## About
-This is a [CiviCRM](https://civicrm.org) extension to support the CiviContact mobile application. This extension **must** be installed on the CiviCRM site for the CiviContact mobile application to function.   
+This is a [CiviCRM](https://civicrm.org) extension to support the CiviContact mobile application. This extension **must** be installed on the CiviCRM site for the CiviContact mobile application to function.
+
+For WordPress websites with CiviCRM installed, please download and apply this patch to CiviCRM: [rest-wp.patch](rest-wp.patch)
 
 ## Usage
 Just install the extension and it is ready to be used with CiviContact mobile application.  
-For WordPress, download and apply patch to CiviCRM: rest-wp.patch
 
 CiviContact extension exposes contacts of selected groups only. To allow any group to be synced with mobile application follow the steps.
-1. Open Groups page (Contacts > Manage Groups)
-2. Click "Settings" of any group which you want to get synced with CiviContact mobile application.
-3. There is an option "Sync to CiviContact", Check it and click save.
+1. Open Groups page, Contacts > Manage Groups
+2. Click **Settings** of any group which you want to get synced with CiviContact mobile application.
+3. There is an option **Sync to CiviContact**, Check it and click save.
 
 Now contacts from the above group will be synced with the CiviContact mobile application. If contact is added/removed from the Group, it will be updated in mobile application on next sync.
 
-By default extension adds a Group named "CiviContact", any contact which is added from the mobile device will be added in this group by default.
+By default extension adds a Group named **CiviContact**, any contact which is added from the mobile device will be added in this group by default.
 
 ## Login from mobile
 
 To login into the mobile application follow the steps.
 
-1. Click on "Scan QR Code" on Welcome screen, That will ask you for permission to access camera if you have not already given the access.
+1. Click on **Scan QR Code** on Welcome screen, That will ask you for permission to access camera if you have not already given the access.
 2. Clicking allow will open the camera with QR code scanner.
 3. Login into CiviCRM
-4. Open your profile page, a new last tab is added with name "CCA QR Code" by CiviContact extension. Click on it.
-5. Now scan this QR code from mobile device.
+4. Open the CiviCRM Contact which is linked to your website login (your CiviCRM Contact).
+5. View the Contact, open the tab is added with name **CiviContact Authentication**.
+6. Click on this tab and a QR code should now be displayed.
+7. Scan this QR code using the CiviContact app.
 
-And that's All! CiviContact mobile app will fetch all the contacts from the *sync allowed* groups.
+And that's all! CiviContact mobile app will fetch all the contacts from the **Sync to CiviContact** groups.
 
 ## Configuration
 
