@@ -53,6 +53,7 @@ class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
     $title = E::ts('QR Code of ')." ".$contact->display_name;
     CRM_Utils_System::setTitle($title);
 
+    $this->assign('qrcode', $url = CRM_Utils_System::url( 'civicrm/contact/generate/qrcode', "cid=$contactID"));
     $this->assign('login_url', $url);
     $this->assign('title', $title);
     parent::run();
