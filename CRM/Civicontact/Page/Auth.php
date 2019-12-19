@@ -85,9 +85,6 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       $groupid = $group["values"][0]["id"];
     }
 
-    // Licence code
-    $licence_code = Civi::settings()->get('cca_licence_code');
-
     CRM_Utils_JSON::output(
       [
         'error'          => 0,
@@ -98,7 +95,6 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
         "rest_end_point" => $restendpoint,
         "groupid"        => $groupid,
         "domain_name"    => $_SERVER['SERVER_NAME'],
-        "licence_code"   => $licence_code,
       ]
     );
     exit();

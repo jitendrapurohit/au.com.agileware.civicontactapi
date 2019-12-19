@@ -30,14 +30,12 @@
 <table class="form-layout">
 {foreach from=$elementNames item=element}
   {assign var="elementName" value=$element.name}
-  {if ($elementName != 'cca_licence_activated')}
-      <tr>
-          <td class="label">{$form.$elementName.label}</td>
-          <td>{$form.$elementName.html}<br />
-            <span class="description">{ $element.description }</span>
-          </td>
-      </tr>
-  {/if}
+  <tr>
+      <td class="label">{$form.$elementName.label}</td>
+      <td>{$form.$elementName.html}<br />
+          <span class="description">{ $element.description }</span>
+      </td>
+  </tr>
 {/foreach}
     <tr>
         <td class="label"><label for="cca_reset_qr_code">Reset QR code</label></td>

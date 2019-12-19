@@ -17,12 +17,6 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
-    <path>civicrm/cca/activatelicence</path>
-    <page_callback>CRM_Civicontact_Page_ActivateLicence</page_callback>
-    <title>ActivateLicence</title>
-    <access_arguments>access CiviCRM</access_arguments>
-  </item>
-  <item>
     <path>civicrm/cca/auth</path>
     <page_callback>CRM_Civicontact_Page_Auth</page_callback>
     <title>Auth</title>

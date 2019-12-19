@@ -208,7 +208,7 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
     foreach ($this->_elements as $element) {
       /** @var HTML_QuickForm_Element $element */
       $label = $element->getLabel();
-      if (!empty($label) && $element->getName() != "cca_licence_activated" && (($element->getName() == "cca_force_ssl" && $this->isSSLEnabled) || $element->getName() != "cca_force_ssl")) {
+      if (!empty($label) && (($element->getName() == "cca_force_ssl" && $this->isSSLEnabled) || $element->getName() != "cca_force_ssl")) {
         $elementNames[] = array(
           "name"        => $element->getName(),
           "description" => $this->_settings[$element->getName()]["description"],
@@ -225,7 +225,6 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
   public function saveSettings() {
     $settings = $this->getFormSettings();
     $values = array_intersect_key($this->_submittedValues, $settings);
-    unset($values["cca_licence_activated"]);
     civicrm_api3('setting', 'create', $values);
   }
 
