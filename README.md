@@ -4,6 +4,10 @@ This is a [CiviCRM](https://civicrm.org) extension to support the CiviContact mo
 
 For WordPress websites with CiviCRM installed, please download and apply this patch to CiviCRM: [rest-wp.patch](rest-wp.patch)
 
+_Note_: As of 22/12/2019, there are proposed changes to improve CiviCRM REST API support for WordPress. These changes have not been tested with CiviContact. Use the included [rest-wp.patch](rest-wp.patch) for now. References 
+[PR #160 - Merge REST API wrapper code](https://github.com/civicrm/civicrm-wordpress/pull/160) and [WordPress Development roadmap
+](https://lab.civicrm.org/dev/wordpress/issues/20#civicrm-rest-api)
+
 ## Usage
 Just install the extension and it is ready to be used with CiviContact mobile application.  
 
