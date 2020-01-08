@@ -20,11 +20,13 @@
     <path>civicrm/cca/auth</path>
     <page_callback>CRM_Civicontact_Page_Auth</page_callback>
     <title>Auth</title>
-    <access_arguments>make online contributions</access_arguments>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
   </item>
   <item>
     <path>civicrm/cca/rest</path>
     <page_callback>CRM_Civicontact_Rest::api</page_callback>
-    <access_arguments>make online contributions</access_arguments>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
   </item>
 </menu>
