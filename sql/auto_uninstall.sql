@@ -31,6 +31,16 @@
 -- *
 -- *******************************************************/
 
+-- drop custom group for syncing groups
+DELETE FROM civicrm_custom_group WHERE name = 'CCA_Group_Settings';
+DELETE FROM civicrm_custom_field WHERE name = 'Sync_to_CCA';
+
+-- drop option group for syncing groups
+DELETE  FROM civicrm_option_group WHERE name = 'sync_to_cca';
+
+-- drop table that stores information for syncing groups
+DROP TABLE IF EXISTS civicrm_cca_group_settings;
+
 SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `civicrm_cca_groups_log`;
