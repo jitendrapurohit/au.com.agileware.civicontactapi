@@ -743,3 +743,14 @@ function civicontactapi_civicrm_tokenvalues(&$values, $cids, $job = NULL, $token
     }
   }
 }
+
+function civicontactapi_civicrm_summaryActions( &$actions, $contactID ) {
+	$actions['otherActions']['civicontact'] = [
+		'title' => 'Email CCA URL to Contact',
+		'weight' => 50,
+		'ref' => 'cca',
+		'key' =>'cca',
+		'class' => 'no-popup',
+		'href' => CRM_Utils_System::url( 'civicrm/cca/email', [ 'id' => $contactID ] ),
+	];
+}

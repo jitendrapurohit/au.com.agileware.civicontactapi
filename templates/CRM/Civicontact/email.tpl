@@ -1,0 +1,1 @@
+<p>Use <a href="{$auth_url}">this link</a> to log into your CiviContact</p>

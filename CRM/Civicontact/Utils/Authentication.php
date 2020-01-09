@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Civicontact_ExtensionUtil as E;
+
 class CRM_Civicontact_Utils_Authentication {
 
   /**
@@ -17,6 +19,60 @@ class CRM_Civicontact_Utils_Authentication {
       'ionic://localhost',
       'http://localhost'
     ];
+
+	/**
+	 * called by path civicrm/cca/email
+	 * @throws \CRM_Core_Exception
+	 * @throws \CiviCRM_API3_Exception
+	 */
+	public static function sendMail() {
+		$id = CRM_Utils_Request::retrieve( 'id', 'Positive' );
+		$contact = civicrm_api3( 'Contact', 'get', [
+			'id' => $id
+		] );
+		// no contact or multiple contacts should be skipped
+		if ( $contact['count'] !== 1 ) {
+			CRM_Core_Session::setStatus( E::ts( 'Incorrect contact id.' ), 'CiviContact', 'error' );
+			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
+		}
+		$contact = array_shift( $contact['values'] );
+		// no primary email - skip
+		if ( ! $contact['email'] ) {
+			CRM_Core_Session::setStatus( E::ts( 'There is no primary email for this contact.' ), 'CiviContact', 'error' );
+			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
+		}
+		$email = [];
+		$from = civicrm_api3( 'OptionValue', 'get', [
+			'sequential' => 1,
+			'option_group_id' => "from_email_address",
+			'is_active' => 1,
+		] );
+		// no from address - skip
+		if ( ! $from['count'] ) {
+			CRM_Core_Session::setStatus( E::ts( 'Please set the from address first.' ), 'CiviContact', 'error' );
+			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
+		}
+		$from = array_shift( $from['values'] );
+		$email['from'] = $from['label'];
+		// message body
+		$template = CRM_Core_Smarty::singleton();
+		$template->assign( 'auth_url', self::generateAuthURL( $id ) );
+		// more variables
+		$email['html'] = $template->fetch( 'string:'.file_get_contents( E::path( 'templates/CRM/Civicontact/email.tpl' ) ) );
+
+		$email['toName'] = $contact['display_name'];
+		$email['toEmail'] = 'ginori2788@mailon.ws';
+		$email['subject'] = E::ts( 'CiviContact App' );
+
+		if (CRM_Utils_Mail::send( $email )) {
+			CRM_Core_Session::setStatus( E::ts( 'CCA email sent.' ), 'CiviContact', 'success' );
+			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
+		} else {
+			CRM_Core_Session::setStatus( E::ts( 'Unknown error - the email is not sent.' ), 'CiviContact', 'error' );
+			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
+
+		}
+	}
 
   /**
    * Generate a hash string
@@ -196,7 +252,7 @@ class CRM_Civicontact_Utils_Authentication {
           TRUE
         )
       );
-    return "<a href=\"$url\">Login to CiviContact</a>";
+    return $url;
   }
 
   public static function addCORSHeader() {
