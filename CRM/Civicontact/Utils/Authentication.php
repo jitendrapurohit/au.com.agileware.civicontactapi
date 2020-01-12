@@ -7,14 +7,14 @@ class CRM_Civicontact_Utils_Authentication {
   /**
    * The prefix for key name in cache table
    */
-  public const HASH_PREFIX = 'CCA-HASH-CID-';
+  const HASH_PREFIX = 'CCA-HASH-CID-';
 
   /**
    * The key name in settings table
    */
-  public const SETTINGS = 'cca_auth';
+  const SETTINGS = 'cca_auth';
 
-  public const ORIGINS
+  const ORIGINS
     = [
       'ionic://localhost',
       'http://localhost'
