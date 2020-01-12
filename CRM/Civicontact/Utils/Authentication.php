@@ -61,7 +61,7 @@ class CRM_Civicontact_Utils_Authentication {
 		$email['html'] = $template->fetch( 'string:'.file_get_contents( E::path( 'templates/CRM/Civicontact/email.tpl' ) ) );
 
 		$email['toName'] = $contact['display_name'];
-		$email['toEmail'] = 'ginori2788@mailon.ws';
+		$email['toEmail'] = $contact['email'];
 		$email['subject'] = E::ts( 'CiviContact App' );
 
 		if (CRM_Utils_Mail::send( $email )) {
