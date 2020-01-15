@@ -1,4 +1,16 @@
 # CiviContact API (au.com.agileware.civicontactapi)
+
+## CiviContact is available for limited testing only
+
+As of **15th January 2020**, the CiviContact app is only available to **registered testers** in the iTunes and Google Play Store.
+If you would  like to be a CiviContact app tester then please email [civicontact@agileware.com.au](mailto:civicontact@agileware.com.au) and tell us:
+1. Which device you are using either: Android or iPhone
+2. The email address you use to login to iTunes or the Google Play Store
+
+When you become a tester we will email you and ask for your feedback on the app. We are interested in hearing about both improvements and any bugs you may find.
+
+We expect do a public release of the CiviContact app in **February 2020**. 
+
 ## About
 This is a [CiviCRM](https://civicrm.org) extension to support the CiviContact mobile application. This extension **must** be installed on the CiviCRM site for the CiviContact mobile application to function.
 
