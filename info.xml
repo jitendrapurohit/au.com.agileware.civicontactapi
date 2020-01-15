@@ -2,18 +2,19 @@
 <extension key="au.com.agileware.civicontactapi" type="module">
   <file>civicontactapi</file>
   <name>CiviContact API</name>
-  <description>Backend extension for CiviContact mobile application.</description>
+  <description>Extension required for the CiviContact application for iOS and Android.</description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>Agileware</author>
-    <email>support@agileware.com.au</email>
+    <email>civicontact@agileware.com.au</email>
   </maintainer>
   <urls>
-    <url desc="Main Extension Page">https://agileware.com.au</url>
-    <url desc="Documentation">https://agileware.com.au</url>
+    <url desc="Main Extension Page">https://civicontact.com.au</url>
+    <url desc="Documentation">https://civicontact.com.au</url>
     <url desc="Support">https://support.agileware.com.au</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
-    <url desc="CiviContact Mobile Application">https://play.google.com/store/apps/details?id=au.com.agileware.civicontact</url>
+    <url desc="CiviContact Android Application">https://play.google.com/store/apps/details?id=au.com.agileware.civicontact</url>
+    <url desc="CiviContact iOS Application">https://notreleasedyet.com</url>
   </urls>
   <releaseDate>2020-01-13</releaseDate>
   <version>0.3.2</version>
