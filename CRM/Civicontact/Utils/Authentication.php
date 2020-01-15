@@ -62,7 +62,7 @@ class CRM_Civicontact_Utils_Authentication {
 
 		$email['toName'] = $contact['display_name'];
 		$email['toEmail'] = $contact['email'];
-		$email['subject'] = E::ts( 'CiviContact App' );
+		$email['subject'] = E::ts( 'CiviContact set up instructions' );
 
 		if (CRM_Utils_Mail::send( $email )) {
 			CRM_Core_Session::setStatus( E::ts( 'CiviContact authentication email sent.' ), 'CiviContact', 'success' );
