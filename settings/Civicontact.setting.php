@@ -54,7 +54,7 @@ return array(
     'is_contact' => 0,
     'default' => 'default',
     'description' => '',
-    'title' => 'Contact tile click action',
+    'title' => 'Favourite Tile Click Action',
     'pseudoconstant' => array(
       'callback' => 'CRM_Civicontact_Form_Settings::getContactTileClickActions',
     ),
