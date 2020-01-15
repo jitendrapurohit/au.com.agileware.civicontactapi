@@ -46,11 +46,9 @@ Use this method if your users are familiar with logging into CiviCRM and accessi
 
 ### Authentication using the CiviContact authentication URL method
 
-Use this method if you have many users to set up with CiviContact and/or if users are not logging into CiviCRM frequently.
-
-This method allows you to send an email with a special CiviContact authentication URL, when clicked on a mobile device this will launch CiviContact and authenticate with CiviCRM.
-
-_Note: The authentication URL **will only work on the mobile device** and will not work if clicked on from desktop email client_. 
+Use this method if you have many users to set up with CiviContact and/or if users are not logging into CiviCRM frequently. Send an email with a special CiviContact authentication URL (token: **{civicontact.authUrl}**), when clicked on a mobile device this will launch CiviContact and authenticate with CiviCRM.
+* The authentication URL **will only work on the mobile device** and will not work if clicked on from desktop email client.
+* The CiviContact authentication link will **expire after 24 hours** and a new link will be required. 
 
 #### Authenticating individual CiviContact users
 
