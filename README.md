@@ -1,58 +1,107 @@
 # CiviContact API (au.com.agileware.civicontactapi)
 
-## CiviContact is available for limited testing only
+This is a [CiviCRM](https://civicrm.org) extension required for the [CiviContact application](https://civicontact.com.au) for iOS and Android. Find out more about about CiviContact at [civicontact.com.au](https://civicontact.com.au)
+
+This extension **must** be installed in CiviCRM for the CiviContact app to function.
+
+## CiviContact 
 
 As of **15th January 2020**, the CiviContact app is only available to **registered testers** in the iTunes and Google Play Store.
 If you would  like to be a CiviContact app tester then please email [civicontact@agileware.com.au](mailto:civicontact@agileware.com.au) and tell us:
-1. Which device you are using either: Android or iPhone
-2. The email address you use to login to iTunes or the Google Play Store
+1. Which device you are using either: [Android](https://www.android.com/) or [iPhone](https://apple.com/iphone)
+2. The email address you use to login to [iTunes](https://apple.com/itunes) or the [Google Play Store](https://play.google.com/)
 
 When you become a tester we will email you and ask for your feedback on the app. We are interested in hearing about both improvements and any bugs you may find.
 
 We expect do a public release of the CiviContact app in **February 2020**. 
 
-## About
-This is a [CiviCRM](https://civicrm.org) extension to support the CiviContact mobile application. This extension **must** be installed on the CiviCRM site for the CiviContact mobile application to function.
+## Installation
+1. Download the [CiviContactAPI extension](https://github.com/agileware/au.com.agileware.civicontactapi/archive/master.zip).
+2. Install the CiviContact extension to the CiviCRM extensions directory to a new **civicontact** sub-directory
+3. Enable the CiviContact extension in CiviCRM on the Extensions page
+
+### Patch required for CiviCRM on WordPress 
 
 For WordPress websites with CiviCRM installed, please download and apply this patch to CiviCRM: [rest-wp.patch](rest-wp.patch)
 
-_Note_: As of 22/12/2019, there are proposed changes to improve CiviCRM REST API support for WordPress. These changes have not been tested with CiviContact. Use the included [rest-wp.patch](rest-wp.patch) for now. References 
+As of **22nd December 2019**, there are proposed changes to improve CiviCRM REST API support for WordPress. These changes have not been tested with CiviContact. Use the included [rest-wp.patch](rest-wp.patch) for now. References 
 [PR #160 - Merge REST API wrapper code](https://github.com/civicrm/civicrm-wordpress/pull/160) and [WordPress Development roadmap
 ](https://lab.civicrm.org/dev/wordpress/issues/20#civicrm-rest-api)
+ 
+## Authenticating CiviContact with CiviCRM
 
-## Usage
-Just install the extension and it is ready to be used with CiviContact mobile application.  
+There are two methods available for authenticating CiviContact with CiviCRM. _Note: Both methods require that the authenticating user have a valid user account in the website which is linked to their CiviCRM contact record._
 
-CiviContact extension exposes contacts of selected groups only. To allow any group to be synced with mobile application follow the steps.
-1. Open Groups page, Contacts > Manage Groups
-2. Click **Settings** of any group which you want to get synced with CiviContact mobile application.
-3. There is an option **Sync to CiviContact**, Check it and click save.
+### Authentication using the QR Code method
 
-Now contacts from the above group will be synced with the CiviContact mobile application. If contact is added/removed from the Group, it will be updated in mobile application on next sync.
+Use this method if your users are familiar with logging into CiviCRM and accessing their own contact record.
 
-By default extension adds a Group named **CiviContact**, any contact which is added from the mobile device will be added in this group by default.
+1. Login to CiviCRM.
+2. Locate the contact record in CiviCRM linked to your user account. _Note: You cannot view the QR code for another contact record._
+3. Open the tab is added with name **CiviContact Authentication**. You should see a QR Code image on this page.
+4. Launch the CiviContact app and click on **Scan QR Code** on initial screen.
+5. If prompted, grant permission for CiviContact to access your camera.
+6. Scan the QR Code.
+7. CiviContact should then complete the authentication and immediately sync with CiviCRM.
 
-## Login from mobile
+### Authentication using the CiviContact authentication URL method
 
-To login into the mobile application follow the steps.
+Use this method if you have many users to set up with CiviContact and/or if users are not logging into CiviCRM frequently.
 
-1. Click on **Scan QR Code** on Welcome screen, That will ask you for permission to access camera if you have not already given the access.
-2. Clicking allow will open the camera with QR code scanner.
-3. Login into CiviCRM
-4. Open the CiviCRM Contact which is linked to your website login (your CiviCRM Contact).
-5. View the Contact, open the tab is added with name **CiviContact Authentication**.
-6. Click on this tab and a QR code should now be displayed.
-7. Scan this QR code using the CiviContact app.
+This method allows you to send an email with a special CiviContact authentication URL, when clicked on a mobile device this will launch CiviContact and authenticate with CiviCRM.
 
-And that's all! CiviContact mobile app will fetch all the contacts from the **Sync to CiviContact** groups.
+_Note: The authentication URL **will only work on the mobile device** and will not work if clicked on from desktop email client_. 
+
+#### Authenticating individual CiviContact users
+
+When viewing a CiviCRM contact, in the Actions menu there is a new action available **Send CiviContact authentication**.
+When this action is executed an email will be sent immediately to the contact primary email address with the CiviContact authentication URL.
+
+#### Authenticating many CiviContact users
+
+A special CiviCRM token is available **{civicontact.authUrl}** which can be used in **Send Email** action, **Bulk Mailings** (newsletters) and **Scheduled Reminders**.
+Include the **{civicontact.authUrl}** in the email to generate a unique CiviContact authentication URL for each recipient of the email.
 
 ## Configuration
 
-Open Administer > CiviContact > Settings to open extension's configuration page. Following options are avilable to configure
+To configure CiviContact in CiviCRM, navigate to **Administer > CiviContact > Settings**. On this page you can configure:
+* **Enable Global Config**, it is disabled by default. If it is set as "yes" application config will be same for all users and it can't be changed from App settings.
+* **Email to Activity**, This is global configuration, if the above setting is turned on we will consider this config for all the users. This config is used to record an activity when a user emails any contact.
+* **Sync Interval**, This is again global configuration, if the first setting is turned on we will consider this config for all the users. This config is used to set sync interval at which sync should get executed in mobile application.
+* And a few other useful options.
 
-1. **Enable Global Config**, it is disabled by default. If it is set as "yes" application config will be same for all users and it can't be changed from App settings.
-2. **Email to Activity**, This is global configuration, if the above setting is turned on we will consider this config for all the users. This config is used to record an activity when a user emails any contact.
-3. **Sync Interval**, This is again global configuration, if the first setting is turned on we will consider this config for all the users. This config is used to set sync interval at which sync should get executed in mobile application.
+### Syncing groups with CiviContact
+
+To enable a CiviCRM Group (either Standard Group or Smart Group) to be synced with CiviContact:
+1. Open Groups page, **Contacts > Manage Groups**
+2. Click **Settings** of the Group to sync with CiviContact.
+3. Enable the **Sync to CiviContact** option.
+4. Click **Save** to apply the change.
+
+When CiviContact syncs again with CiviCRM, this Group and the Contacts in the Group will be synced.
+Any changes to the Group in CiviCRM will be reflected in CiviContact automatically.
+
+### Default group for new contacts
+
+When the CiviContact API extension is installed, a new CiviCRM Group **CiviContact** is added. When new Contacts are added in CiviContact, each Contact will be automatically added to this Group in CiviCRM.
+
+### Default profile for CiviContact
+
+When the CiviContact API extension is installed, a new CiviCRM profile **CiviContact** is added.
+This profile is intended to be used to add new fields to CiviContact, rename existing fields, re-order fields and remove fields, enabling you to fully customise the CiviContact user interface without any coding required.
+
+## Customising CiviContact
+
+Add your custom CiviCRM fields to the CiviContact profile to enable your users to view and update information specific to your requirements.
+
+**[Summary Fields](https://civicrm.org/extensions/summary-fields)** make it easier to search for major donors, recent donors, lapsed donors as well as to show a synopsis of a donor’s history. CiviContact supports the following CiviCRM extensions:
+* [Summary Fields](https://civicrm.org/extensions/summary-fields)
+* [Joinerys More Summary Fields](https://civicrm.org/extensions/joinerys-more-summary-fields)
+
+**[CiviTeams integration](https://github.com/agileware/au.com.agileware.civiteams)** enables you to easily segment your users into virtual teams and precisely control which Contacts and Groups are available in CiviContact.
+
+For example, setting up two virtual CiviTeams, CiviTeam A can access Group 1 and Group 2 using CiviContact, CiviTeam B can access Group 3 and Group 4.
+
 
 About the Authors
 -----------------
