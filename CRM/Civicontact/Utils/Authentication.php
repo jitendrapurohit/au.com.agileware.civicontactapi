@@ -32,13 +32,13 @@ class CRM_Civicontact_Utils_Authentication {
 		] );
 		// no contact or multiple contacts should be skipped
 		if ( $contact['count'] !== 1 ) {
-			CRM_Core_Session::setStatus( E::ts( 'Incorrect contact id.' ), 'CiviContact', 'error' );
+			CRM_Core_Session::setStatus( E::ts( 'Incorrect Contact ID.' ), 'CiviContact', 'error' );
 			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
 		}
 		$contact = array_shift( $contact['values'] );
 		// no primary email - skip
 		if ( ! $contact['email'] ) {
-			CRM_Core_Session::setStatus( E::ts( 'There is no primary email for this contact.' ), 'CiviContact', 'error' );
+			CRM_Core_Session::setStatus( E::ts( 'There is no email address set for this Contact.' ), 'CiviContact', 'error' );
 			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
 		}
 		$email = [];
@@ -49,7 +49,7 @@ class CRM_Civicontact_Utils_Authentication {
 		] );
 		// no from address - skip
 		if ( ! $from['count'] ) {
-			CRM_Core_Session::setStatus( E::ts( 'Please set the from address first.' ), 'CiviContact', 'error' );
+			CRM_Core_Session::setStatus( E::ts( 'CiviCRM has no From Email Address set. Please set this option and try again.' ), 'CiviContact', 'error' );
 			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
 		}
 		$from = array_shift( $from['values'] );
@@ -65,10 +65,10 @@ class CRM_Civicontact_Utils_Authentication {
 		$email['subject'] = E::ts( 'CiviContact App' );
 
 		if (CRM_Utils_Mail::send( $email )) {
-			CRM_Core_Session::setStatus( E::ts( 'CCA email sent.' ), 'CiviContact', 'success' );
+			CRM_Core_Session::setStatus( E::ts( 'CiviContact authentication email sent.' ), 'CiviContact', 'success' );
 			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
 		} else {
-			CRM_Core_Session::setStatus( E::ts( 'Unknown error - the email is not sent.' ), 'CiviContact', 'error' );
+			CRM_Core_Session::setStatus( E::ts( 'Unknown error - CiviContact authentication email not sent.' ), 'CiviContact', 'error' );
 			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
 
 		}
