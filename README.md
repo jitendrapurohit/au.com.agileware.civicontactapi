@@ -52,8 +52,9 @@ Use this method if you have many users to set up with CiviContact and/or if user
 
 #### Authenticating individual CiviContact users
 
-When viewing a CiviCRM contact, in the Actions menu there is a new action available **Send CiviContact authentication**.
+When viewing a CiviCRM contact, in the **Actions menu** there is a new action available **Send CiviContact authentication**.
 When this action is executed an email will be sent immediately to the contact primary email address with the CiviContact authentication URL.
+You can override the contents of this email located in **templates/CRM/Civicontact/email.tpl**
 
 #### Authenticating many CiviContact users
 
@@ -62,11 +63,17 @@ Include the **{civicontact.authUrl}** in the email to generate a unique CiviCont
 
 ## Configuration
 
-To configure CiviContact in CiviCRM, navigate to **Administer > CiviContact > Settings**. On this page you can configure:
-* **Enable Global Config**, it is disabled by default. If it is set as "yes" application config will be same for all users and it can't be changed from App settings.
-* **Email to Activity**, This is global configuration, if the above setting is turned on we will consider this config for all the users. This config is used to record an activity when a user emails any contact.
-* **Sync Interval**, This is again global configuration, if the first setting is turned on we will consider this config for all the users. This config is used to set sync interval at which sync should get executed in mobile application.
-* And a few other useful options.
+To configure CiviContact in CiviCRM, navigate to **Administer > CiviContact > Settings**.
+
+On this page you can configure:
+* **Enable Global Config**: disabled by default. If enabled, this will prevent CiviContact settings being changed locally and instead apply a global configuration to all users.
+* **Email to Activity**: if enabled this option will automatically record activity when the user emails any contact from CiviContact.
+* **Favourite Tile Click Action**: the default action to be executed when a Favourite Contact tile is clicked, actions can be either: Create Email or Create Phone Call. CiviContact will skip the phone or email action if there is no phone or email available for the Contact.
+* **Contact Activity types**: the activity types which are listed in the "Activities" for a Contact.
+* **Contact Profile**: select the CiviCRM Profile to be used for displaying the fields on the add, view end edit pages in CiviContact. By default this is set to the CiviContact Profile.
+* **Sync Interval**: determines how often CiviContact should sync with the CiviCRM site.
+* **Reset QR Code**: re-generate QR Codes for all users.
+* **Drop Authentication**: immediately invalidate all existing user CiviContact authentication, requiring all users to re-authenticate. 
 
 ### Syncing groups with CiviContact
 
