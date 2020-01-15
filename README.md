@@ -41,3 +41,25 @@ Open Administer > CiviContact > Settings to open extension's configuration page.
 1. **Enable Global Config**, it is disabled by default. If it is set as "yes" application config will be same for all users and it can't be changed from App settings.
 2. **Email to Activity**, This is global configuration, if the above setting is turned on we will consider this config for all the users. This config is used to record an activity when a user emails any contact.
 3. **Sync Interval**, This is again global configuration, if the first setting is turned on we will consider this config for all the users. This config is used to set sync interval at which sync should get executed in mobile application.
+
+About the Authors
+-----------------
+
+This CiviCRM extension was developed by the team at
+[Agileware](https://agileware.com.au).
+
+[Agileware](https://agileware.com.au) provide a range of CiviCRM services
+including:
+
+  * CiviCRM migration
+  * CiviCRM integration
+  * CiviCRM extension development
+  * CiviCRM support
+  * CiviCRM hosting
+  * CiviCRM remote training services
+
+Support your Australian [CiviCRM](https://civicrm.org) developers, [contact
+Agileware](https://agileware.com.au/contact) today!
+
+
+![Agileware](logo/agileware-logo.png)
