@@ -240,7 +240,6 @@ class CRM_Civicontact_Utils_Authentication {
       $hash
     );
 
-    // TODO change to https
     $url = "https://civicontact.com.au/login?auth=" .
       urlencode(
         CRM_Utils_System::url(
