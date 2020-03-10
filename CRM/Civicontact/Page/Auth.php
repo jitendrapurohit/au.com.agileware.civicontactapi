@@ -85,6 +85,13 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       $groupid = $group["values"][0]["id"];
     }
 
+    // Get Google analytics settings
+    $gaResult = civicrm_api3('Setting', 'get', [
+      'sequential' => 1,
+      'return' => ["cca_client_google_analytics"],
+    ]);
+    $gaResult = array_shift($gaResult['values'])['cca_client_google_analytics'];
+
     CRM_Utils_JSON::output(
       [
         'error'          => 0,
@@ -95,6 +102,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
         "rest_end_point" => $restendpoint,
         "groupid"        => $groupid,
         "domain_name"    => $_SERVER['SERVER_NAME'],
+        'cca_client_google_analytics' => $gaResult
       ]
     );
     exit();

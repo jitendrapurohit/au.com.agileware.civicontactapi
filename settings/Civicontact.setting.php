@@ -123,5 +123,21 @@ return array(
     'html_attributes' => array(),
     'help_text' => '',
   ),
+  'cca_client_google_analytics' => array(
+    'group_name' => 'CiviContact Settings',
+    'group' => 'cca',
+    'name' => 'cca_client_google_analytics',
+    'type' => 'String',
+    'add' => '4.7',
+    'quick_form_type' => 'Element',
+    'html_type' => 'text',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'default' => '',
+    'description' => '',
+    'title' => 'Google Analytics Tracker ID',
+    'html_attributes' => array(),
+    'help_text' => '',
+  ),
 
 );
