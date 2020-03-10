@@ -1,54 +1,58 @@
 <?php
+
 use CRM_Civicontact_ExtensionUtil as E;
 
 /**
  * CCAGroupContactsLog.getmodifiedcontacts API specification
  *
  * @param array $spec description of fields supported by this API call
+ *
  * @return void
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts_spec(&$spec) {
-  $spec['createdat'] = array(
+  $spec['createdat'] = [
     'api.required' => 0,
     'title' => 'Created At',
     'type' => CRM_Utils_Type::T_TIMESTAMP,
-  );
+  ];
 }
 
 /**
  * CCAGroupContactsLog.create API specification
  *
  * @param array $spec description of fields supported by this API call
+ *
  * @return void
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_c_c_a_group_contacts_log_create_spec(&$spec) {
-  $spec['contactid'] = array(
+  $spec['contactid'] = [
     'api.required' => 1,
     'title' => 'Contact ID',
     'type' => CRM_Utils_Type::T_INT,
     'FKClassName' => 'CRM_Contact_DAO_Contact',
     'FKApiName' => 'Contact',
-  );
-  $spec['groupid'] = array(
+  ];
+  $spec['groupid'] = [
     'api.required' => 1,
     'title' => 'Group ID',
     'type' => CRM_Utils_Type::T_INT,
     'FKClassName' => 'CRM_Contact_DAO_Group',
     'FKApiName' => 'Group',
-  );
-  $spec['action'] = array(
+  ];
+  $spec['action'] = [
     'api.required' => 1,
     'title' => 'Action',
     'type' => CRM_Utils_Type::T_STRING,
-  );
+  ];
 }
 
 /**
  * CCAGroupContactsLog.create API
  *
  * @param array $params
+ *
  * @return array API result descriptor
  * @throws API_Exception
  */
@@ -65,7 +69,7 @@ function civicrm_api3_c_c_a_group_contacts_log_create($params) {
  * @throws \CiviCRM_API3_Exception
  */
 function civicrm_api3_c_c_a_group_contacts_log_countcontact($params) {
-  $params["group"] = array('IN' => getCCAActiveGroups());
+  $params["group"] = ['IN' => getCCAActiveGroups()];
   $params['first_name'] = ['IS NOT NULL' => 1];
   $params['return'] = ['id'];
   $contacts = civicrm_api3('Contact', 'get', $params);
@@ -83,155 +87,157 @@ function civicrm_api3_c_c_a_group_contacts_log_countcontact($params) {
  * CCAGroupContactsLog.get API
  *
  * @param array $params
+ *
  * @return array API result descriptor
  * @throws API_Exception
  */
 function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
-  if(isset($params["createdat"]) && isset($params["createdat"][">="]) && $params["createdat"][">="] != "") {
+  if (isset($params["createdat"]) && isset($params["createdat"][">="]) && $params["createdat"][">="] != "") {
 
     $isCiviTeamsInstalled = isCiviTeamsExtensionInstalled();
 
-    $groupslogparams = array(
-      'sequential'    =>  1,
-      'return'        => array("groupid", "action", "groupid.title"),
-      'createdat'     => $params["createdat"],
-      'options'       => array('sort' => "id DESC"),
-    );
+    $groupslogparams = [
+      'sequential' => 1,
+      'return' => ["groupid", "action", "groupid.title"],
+      'createdat' => $params["createdat"],
+      'options' => ['sort' => "id DESC"],
+    ];
 
-    $uniqueGroups = array();
-    $logGroupsAdded = array();
+    $uniqueGroups = [];
+    $logGroupsAdded = [];
 
-    if($isCiviTeamsInstalled) {
-        $teamgroupsToCheck = array();
-        $teamGroupsToDelete = array();
+    if ($isCiviTeamsInstalled) {
+      $teamgroupsToCheck = [];
+      $teamGroupsToDelete = [];
 
-        $teams = getContactTeams();
-        $teamsToRemove = array();
-        $modifiedTeams = getModifiedTeams($params["createdat"]);
-        $teamsToAdd = array();
+      $teams = getContactTeams();
+      $teamsToRemove = [];
+      $modifiedTeams = getModifiedTeams($params["createdat"]);
+      $teamsToAdd = [];
 
-        foreach($modifiedTeams["values"] as $modifiedTeam) {
-            if(!$modifiedTeam["status"]) {
-                $teamsToRemove[] = $modifiedTeam["team_id"];
-            }
-
-            if($modifiedTeam["status"]) {
-                $teamsToAdd[] = $modifiedTeam["team_id"];
-            }
+      foreach ($modifiedTeams["values"] as $modifiedTeam) {
+        if (!$modifiedTeam["status"]) {
+          $teamsToRemove[] = $modifiedTeam["team_id"];
         }
 
-        $teamgroups = getTeamGroups($teams, FALSE);
-        $teamgroups = $teamgroups["values"];
+        if ($modifiedTeam["status"]) {
+          $teamsToAdd[] = $modifiedTeam["team_id"];
+        }
+      }
 
-        $modifiedteamgroups = getTeamGroups($teams, FALSE, $params["createdat"]);
-        $modifiedteamgroups = $modifiedteamgroups["values"];
+      $teamgroups = getTeamGroups($teams, FALSE);
+      $teamgroups = $teamgroups["values"];
 
-        $teamgroupsToRemove = getTeamGroups($teamsToRemove, FALSE);
-        $teamgroupsToRemove = $teamgroupsToRemove["values"];
+      $modifiedteamgroups = getTeamGroups($teams, FALSE, $params["createdat"]);
+      $modifiedteamgroups = $modifiedteamgroups["values"];
 
-        $teamGroupsToAdd = getTeamGroups($teamsToAdd, TRUE);
-        $teamGroupsToAdd = $teamGroupsToAdd["values"];
+      $teamgroupsToRemove = getTeamGroups($teamsToRemove, FALSE);
+      $teamgroupsToRemove = $teamgroupsToRemove["values"];
 
-        if(count($modifiedteamgroups) > 0) {
-            foreach($modifiedteamgroups as $index => $teamgroup) {
-                if($teamgroup["isactive"]) {
-                    $teamgroupsToCheck[] = $teamgroup["entity_id"];
-                    $modifiedteamgroups[$index]["isactive"] = "on";
-                } else {
-                    $teamGroupsToDelete[] = $teamgroup["entity_id"];
-                    $modifiedteamgroups[$index]["isactive"] = "off";
-                }
-            }
+      $teamGroupsToAdd = getTeamGroups($teamsToAdd, TRUE);
+      $teamGroupsToAdd = $teamGroupsToAdd["values"];
 
-            $activeGroups = getCCAActiveGroups($teamgroupsToCheck, true);
-            foreach($activeGroups as $activeGroup) {
-                if(!array_key_exists($activeGroup["id"], $logGroupsAdded)) {
-                    $uniqueGroups[$activeGroup["id"]] = array(
-                        "action"      => "on",
-                        "groupid"     => $activeGroup["id"],
-                        "groupname"   => $activeGroup["title"],
-                    );
-                }
-            }
-
-            $groupDetails = getGroupDetailsByIds($teamGroupsToDelete);
-            foreach($groupDetails as $groupDetail) {
-                if(!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
-                    $uniqueGroups[$groupDetail["id"]] = array(
-                        "action"      => "off",
-                        "groupid"     => $groupDetail["id"],
-                        "groupname"   => $groupDetail["title"],
-                    );
-                }
-            }
-
-            $uniqueGroupsClone = $uniqueGroups;
-            $uniqueGroups = array();
-
-            foreach($modifiedteamgroups as $teamgroup) {
-                if(array_key_exists($teamgroup["entity_id"], $uniqueGroupsClone)) {
-                    $uniqueGroups[] = $uniqueGroupsClone[$teamgroup["entity_id"]];
-                }
-            }
+      if (count($modifiedteamgroups) > 0) {
+        foreach ($modifiedteamgroups as $index => $teamgroup) {
+          if ($teamgroup["isactive"]) {
+            $teamgroupsToCheck[] = $teamgroup["entity_id"];
+            $modifiedteamgroups[$index]["isactive"] = "on";
+          }
+          else {
+            $teamGroupsToDelete[] = $teamgroup["entity_id"];
+            $modifiedteamgroups[$index]["isactive"] = "off";
+          }
         }
 
-        $teamgroupsToCheck = array();
-        foreach($teamgroups as $teamgroup) {
-            if($teamgroup["isactive"]) {
-                $teamgroupsToCheck[] = $teamgroup["entity_id"];
-                $modifiedteamgroups[$index]["isactive"] = "on";
-            }
+        $activeGroups = getCCAActiveGroups($teamgroupsToCheck, TRUE);
+        foreach ($activeGroups as $activeGroup) {
+          if (!array_key_exists($activeGroup["id"], $logGroupsAdded)) {
+            $uniqueGroups[$activeGroup["id"]] = [
+              "action" => "on",
+              "groupid" => $activeGroup["id"],
+              "groupname" => $activeGroup["title"],
+            ];
+          }
         }
 
-        if(count($teamgroupsToCheck) == 0) {
-            $teamgroupsToCheck[] = "-1";
+        $groupDetails = getGroupDetailsByIds($teamGroupsToDelete);
+        foreach ($groupDetails as $groupDetail) {
+          if (!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
+            $uniqueGroups[$groupDetail["id"]] = [
+              "action" => "off",
+              "groupid" => $groupDetail["id"],
+              "groupname" => $groupDetail["title"],
+            ];
+          }
         }
 
-        $groupslogparams["groupid"] = array("IN" => $teamgroupsToCheck);
+        $uniqueGroupsClone = $uniqueGroups;
+        $uniqueGroups = [];
 
-        if(count($teamgroupsToRemove) > 0) {
-            $teamgroupsToRemove = array_column($teamgroupsToRemove , "entity_id");
-            $groupDetails = getGroupDetailsByIds($teamgroupsToRemove);
-            foreach($groupDetails as $groupDetail) {
-                if(!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
-                    $uniqueGroups[$groupDetail["id"]] = array(
-                        "action"      => "off",
-                        "groupid"     => $groupDetail["id"],
-                        "groupname"   => $groupDetail["title"],
-                    );
-                }
-            }
+        foreach ($modifiedteamgroups as $teamgroup) {
+          if (array_key_exists($teamgroup["entity_id"], $uniqueGroupsClone)) {
+            $uniqueGroups[] = $uniqueGroupsClone[$teamgroup["entity_id"]];
+          }
         }
+      }
 
-        if(count($teamGroupsToAdd) > 0) {
-            $teamGroupsToAdd = array_column($teamGroupsToAdd , "entity_id");
-            $groupDetails = getGroupDetailsByIds($teamGroupsToAdd);
-            foreach($groupDetails as $groupDetail) {
-                if(!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
-                    $uniqueGroups[$groupDetail["id"]] = array(
-                        "action"      => "on",
-                        "groupid"     => $groupDetail["id"],
-                        "groupname"   => $groupDetail["title"],
-                    );
-                }
-            }
+      $teamgroupsToCheck = [];
+      foreach ($teamgroups as $teamgroup) {
+        if ($teamgroup["isactive"]) {
+          $teamgroupsToCheck[] = $teamgroup["entity_id"];
+          $modifiedteamgroups[$index]["isactive"] = "on";
         }
+      }
+
+      if (count($teamgroupsToCheck) == 0) {
+        $teamgroupsToCheck[] = "-1";
+      }
+
+      $groupslogparams["groupid"] = ["IN" => $teamgroupsToCheck];
+
+      if (count($teamgroupsToRemove) > 0) {
+        $teamgroupsToRemove = array_column($teamgroupsToRemove, "entity_id");
+        $groupDetails = getGroupDetailsByIds($teamgroupsToRemove);
+        foreach ($groupDetails as $groupDetail) {
+          if (!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
+            $uniqueGroups[$groupDetail["id"]] = [
+              "action" => "off",
+              "groupid" => $groupDetail["id"],
+              "groupname" => $groupDetail["title"],
+            ];
+          }
+        }
+      }
+
+      if (count($teamGroupsToAdd) > 0) {
+        $teamGroupsToAdd = array_column($teamGroupsToAdd, "entity_id");
+        $groupDetails = getGroupDetailsByIds($teamGroupsToAdd);
+        foreach ($groupDetails as $groupDetail) {
+          if (!array_key_exists($groupDetail["id"], $logGroupsAdded)) {
+            $uniqueGroups[$groupDetail["id"]] = [
+              "action" => "on",
+              "groupid" => $groupDetail["id"],
+              "groupname" => $groupDetail["title"],
+            ];
+          }
+        }
+      }
     }
 
     $groupslog = civicrm_api3('CCAGroupsLog', 'get', $groupslogparams);
 
-    foreach($groupslog["values"] as $grouplog) {
-      if(!array_key_exists($grouplog["groupid"], $logGroupsAdded)) {
-        $uniqueGroups[] = array(
-          "action"      => $grouplog["action"],
-          "groupid"     => $grouplog["groupid"],
-          "groupname"   => $grouplog["groupid.title"],
-        );
+    foreach ($groupslog["values"] as $grouplog) {
+      if (!array_key_exists($grouplog["groupid"], $logGroupsAdded)) {
+        $uniqueGroups[] = [
+          "action" => $grouplog["action"],
+          "groupid" => $grouplog["groupid"],
+          "groupname" => $grouplog["groupid.title"],
+        ];
       }
     }
 
-    $contactsfound = array();
-    foreach($uniqueGroups as $index => $groupinfo) {
+    $contactsfound = [];
+    foreach ($uniqueGroups as $index => $groupinfo) {
       $contactids = getGroupContacts($groupinfo["groupname"]);
       $contactactions = array_fill_keys($contactids, ($groupinfo["action"] == "on") ? "create" : "delete");
       $contactsfound = $contactsfound + $contactactions;
@@ -244,16 +250,16 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
     }
 
     $groupcontactlogs = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
-    foreach($groupcontactlogs["values"] as $groupcontactlog) {
-      if(!array_key_exists($groupcontactlog["contactid"], $contactsfound)) {
+    foreach ($groupcontactlogs["values"] as $groupcontactlog) {
+      if (!array_key_exists($groupcontactlog["contactid"], $contactsfound)) {
         $contactsfound[$groupcontactlog["contactid"]] = $groupcontactlog["action"];
       }
     }
 
     $modifiedcontactids = getCCAModifiedContactIds($params["createdat"]);
-    foreach($modifiedcontactids as $modifiedcontactid) {
-      if(!array_key_exists($modifiedcontactid, $contactsfound)) {
-          $contactsfound[$modifiedcontactid] = 'create';
+    foreach ($modifiedcontactids as $modifiedcontactid) {
+      if (!array_key_exists($modifiedcontactid, $contactsfound)) {
+        $contactsfound[$modifiedcontactid] = 'create';
       }
     }
 
@@ -262,7 +268,7 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
     if ($paramsReturn) {
       $params['return'] = $paramsReturn; //Setting the return params back.
     }
-    $contacts = getContacts($params,TRUE, $contactids);
+    $contacts = getContacts($params, TRUE, $contactids);
     return tagContacts($contacts, $contactsfound);
   }
 
@@ -272,46 +278,46 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
 
 function getCCAModifiedContactIds($createdat) {
   $group_ids = getCCAActiveGroups();
-  if(count($group_ids) == 0) {
-    $group_ids = array("-1");
+  if (count($group_ids) == 0) {
+    $group_ids = ["-1"];
   }
 
-  $contactids = civicrm_api3("Contact", "get", array(
-    'IN'            => $group_ids,
-    'return'        => 'id',
-    'sequential'    => TRUE,
+  $contactids = civicrm_api3("Contact", "get", [
+    'IN' => $group_ids,
+    'return' => 'id',
+    'sequential' => TRUE,
     'modified_date' => $createdat,
-  ));
+  ]);
 
   $contactids = array_column($contactids["values"], "contact_id");
   return $contactids;
 }
 
 function getGroupContacts($groupname) {
-  $contactids = civicrm_api3('Contact', 'get', array(
-    "group"      => $groupname,
-    "return"     => array("id"),
+  $contactids = civicrm_api3('Contact', 'get', [
+    "group" => $groupname,
+    "return" => ["id"],
     "sequential" => 1,
-    "options"    => array("limit" => -1)
-  ));
+    "options" => ["limit" => -1],
+  ]);
 
   $contactids = array_column($contactids["values"], "id");
   return $contactids;
 }
 
-function tagContacts($contacts, $actions = array()) {
-  foreach($contacts["values"] as $index => $contact) {
+function tagContacts($contacts, $actions = []) {
+  foreach ($contacts["values"] as $index => $contact) {
     $action = "create";
-    if(isset($actions[$contact["id"]])) {
+    if (isset($actions[$contact["id"]])) {
       $action = $actions[$contact["id"]];
     }
 
-    if($action == "delete") {
-      $contacts["values"][$index] = array(
-        "id"          => $contacts["values"][$index]["id"],
-        "first_name"  => $contacts["values"][$index]["first_name"],
-        "last_name"   => $contacts["values"][$index]["last_name"],
-      );
+    if ($action == "delete") {
+      $contacts["values"][$index] = [
+        "id" => $contacts["values"][$index]["id"],
+        "first_name" => $contacts["values"][$index]["first_name"],
+        "last_name" => $contacts["values"][$index]["last_name"],
+      ];
     }
 
     $contacts["values"][$index]["action"] = $action;
@@ -321,37 +327,97 @@ function tagContacts($contacts, $actions = array()) {
 }
 
 function getCCACustomKey() {
-    $customfield_result = civicrm_api3('CustomField', 'getsingle', array(
-        'sequential' => 1,
-        'return' => array("id"),
-        'name' => "Sync_to_CCA",
-    ));
-    $cca_sync_custom_id = $customfield_result["id"];
-    $cca_sync_custom_key = "custom_".$cca_sync_custom_id;
-    return $cca_sync_custom_key;
+  $customfield_result = civicrm_api3('CustomField', 'getsingle', [
+    'sequential' => 1,
+    'return' => ["id"],
+    'name' => "Sync_to_CCA",
+  ]);
+  $cca_sync_custom_id = $customfield_result["id"];
+  $cca_sync_custom_key = "custom_" . $cca_sync_custom_id;
+  return $cca_sync_custom_key;
 }
 
-function getContacts($params = array(), $bycontactids = FALSE, $contactids = array()) {
+function getContacts($params = [], $bycontactids = FALSE, $contactids = []) {
   $isCiviTeamsInstalled = isCiviTeamsExtensionInstalled();
 
-  $teams = array();
-  if($isCiviTeamsInstalled) {
-      $teams = getContactTeams();
+  $teams = [];
+  if ($isCiviTeamsInstalled) {
+    $teams = getContactTeams();
   }
 
-  $contactparams = array(
-    'sequential'      => 1,
-    'return'          => array("first_name","last_name","sort_name","image_URL","created_date","modified_date","group", "birth_date", "current_employer", "formal_title", "gender", "prefix_id", "suffix_id", "job_title", "middle_name"),
-    'api.Email.get'   => array('return' => array("location_type_id", "email")),
-    'api.Phone.get'   => array('return' => array("location_type_id","phone_type_id", "phone")),
-    'api.Address.get' => array('return' => array("id", "name", "contact_id", "location_type_id", "is_primary", "is_billing", "street_address", "street_number", "street_number_suffix", "street_name", "street_type", "street_number_postdirectional", "city", "county_id.name", "county_id", "state_province_id.name", "state_province_id", "postal_code", "country_id.name", "country_id", "geo_code_1", "geo_code_2", "manual_geo_code", "supplemental_address_1", "supplemental_address_2", "supplemental_address_3")),
-    'api.Website.get' => array('return' => array("id", "contact_id", "url", "website_type_id", "website_type_id.label", "website_type_id.name")),
-    'options'         => array('limit'  => -1)
-  );
+  $contactparams = [
+    'sequential' => 1,
+    'return' => [
+      "first_name",
+      "last_name",
+      "sort_name",
+      "image_URL",
+      "created_date",
+      "modified_date",
+      "group",
+      "birth_date",
+      "current_employer",
+      "formal_title",
+      "gender",
+      "prefix_id",
+      "suffix_id",
+      "job_title",
+      "middle_name",
+    ],
+    'api.Email.get' => ['return' => ["location_type_id", "email"]],
+    'api.Phone.get' => [
+      'return' => [
+        "location_type_id",
+        "phone_type_id",
+        "phone",
+      ],
+    ],
+    'api.Address.get' => [
+      'return' => [
+        "id",
+        "name",
+        "contact_id",
+        "location_type_id",
+        "is_primary",
+        "is_billing",
+        "street_address",
+        "street_number",
+        "street_number_suffix",
+        "street_name",
+        "street_type",
+        "street_number_postdirectional",
+        "city",
+        "county_id.name",
+        "county_id",
+        "state_province_id.name",
+        "state_province_id",
+        "postal_code",
+        "country_id.name",
+        "country_id",
+        "geo_code_1",
+        "geo_code_2",
+        "manual_geo_code",
+        "supplemental_address_1",
+        "supplemental_address_2",
+        "supplemental_address_3",
+      ],
+    ],
+    'api.Website.get' => [
+      'return' => [
+        "id",
+        "contact_id",
+        "url",
+        "website_type_id",
+        "website_type_id.label",
+        "website_type_id.name",
+      ],
+    ],
+    'options' => ['limit' => -1],
+  ];
 
-  $selectedProfileFields = civicrm_api3("UFGroup", "ccaprofilefields", array(
+  $selectedProfileFields = civicrm_api3("UFGroup", "ccaprofilefields", [
     'selectionoptionswithkeys' => TRUE,
-  ));
+  ]);
   $selectedProfileFields = $selectedProfileFields["values"];
   $selectedCustomProfileFields = _cca_selected_custom_profile_fields($selectedProfileFields);
   if (count($selectedCustomProfileFields)) {
@@ -359,36 +425,40 @@ function getContacts($params = array(), $bycontactids = FALSE, $contactids = arr
     $contactparams['return'] = array_merge($contactparams['return'], $customFieldsToAdd);
   }
 
-  if(!$bycontactids) {
-    if($isCiviTeamsInstalled && count($teams) == 0) {
-      $contactparams["group"] = array('IN' => array(
-        "-1"
-      ));
-    } else {
+  if (!$bycontactids) {
+    if ($isCiviTeamsInstalled && count($teams) == 0) {
+      $contactparams["group"] = [
+        'IN' => [
+          "-1",
+        ],
+      ];
+    }
+    else {
       $group_ids = getCCAActiveGroups();
 
-      if($isCiviTeamsInstalled) {
+      if ($isCiviTeamsInstalled) {
         $teamGroups = getTeamGroups($teams, TRUE);
         $teamGroups = array_column($teamGroups["values"], "entity_id");
         $group_ids = array_intersect($group_ids, $teamGroups);
       }
 
-      if(count($group_ids) == 0) {
+      if (count($group_ids) == 0) {
         $group_ids[] = "-1";
       }
-      $contactparams["group"] = array('IN' => $group_ids);
+      $contactparams["group"] = ['IN' => $group_ids];
     }
-  } else {
-    if(count($contactids) == 0) {
+  }
+  else {
+    if (count($contactids) == 0) {
       $contactids[] = "-1";
     }
-    $contactparams["id"] = array('IN' => $contactids);
+    $contactparams["id"] = ['IN' => $contactids];
   }
 
-  if(isset($params["return"]) && count($params["return"]) == 1 && $params["return"][0] = 'contact_id') {
-      $contactparams["return"] = $params["return"];
-      unset($contactparams["api.Email.get"]);
-      unset($contactparams["api.Phone.get"]);
+  if (isset($params["return"]) && count($params["return"]) == 1 && $params["return"][0] = 'contact_id') {
+    $contactparams["return"] = $params["return"];
+    unset($contactparams["api.Email.get"]);
+    unset($contactparams["api.Phone.get"]);
   }
 
   $contacts = civicrm_api3('Contact', 'get', $contactparams);
@@ -404,18 +474,18 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
   _cca_group_contacts_add_website_fields($contacts);
   _cca_group_contacts_add_profile_fields_key($contacts);
 
-  $addressFieldsBAO = array(
+  $addressFieldsBAO = [
     'CRM_Core_BAO_Address',
     'CRM_Core_BAO_Country',
     'CRM_Core_DAO_County',
     'CRM_Core_DAO_StateProvince',
-  );
+  ];
 
   $websiteFieldBAO = 'CRM_Core_BAO_Website';
   $contactFieldBAO = 'CRM_Contact_BAO_Contact';
 
-  $countriesToFind = array();
-  $statesToFind = array();
+  $countriesToFind = [];
+  $statesToFind = [];
 
   foreach ($selectedProfileFields as $selectedProfileField) {
     $fieldtocheck = $selectedProfileField["name"];
@@ -426,28 +496,29 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
       if (($selectedProfileField['bao'] == $contactFieldBAO || $selectedProfileField['bao'] == '') && isset($contact[$fieldtocheck])) {
         $fieldValue = $contact[$fieldtocheck];
         unset($contacts["values"][$contactindex][$fieldtocheck]);
-        if($fieldtocheck != $selectedProfileField["name"]) {
+        if ($fieldtocheck != $selectedProfileField["name"]) {
           unset($contacts["values"][$contactindex][$selectedProfileField["name"]]);
         }
 
-        $labelFields = array(
+        $labelFields = [
           "gender_id" => "gender",
           "prefix_id" => "individual_prefix",
           "suffix_id" => "individual_suffix",
-        );
+        ];
 
-        if(array_key_exists($fieldtocheck, $labelFields)) {
-          $fieldLabel =  $contact[$labelFields[$fieldtocheck]];
+        if (array_key_exists($fieldtocheck, $labelFields)) {
+          $fieldLabel = $contact[$labelFields[$fieldtocheck]];
         }
-        else if (isset($selectedProfileField["selectionvalues"])) {
-            $fieldLabel = array();
+        else {
+          if (isset($selectedProfileField["selectionvalues"])) {
+            $fieldLabel = [];
             $fieldValueToCheck = $fieldValue;
             if (!is_array($fieldValue)) {
-                $fieldValueToCheck = array($fieldValue);
+              $fieldValueToCheck = [$fieldValue];
             }
 
-            foreach($fieldValueToCheck as $valuetocheck) {
-              if(isset($selectedProfileField["selectionvalues"][$valuetocheck])) {
+            foreach ($fieldValueToCheck as $valuetocheck) {
+              if (isset($selectedProfileField["selectionvalues"][$valuetocheck])) {
                 $fieldLabel[] = $selectedProfileField["selectionvalues"][$valuetocheck]["val"];
               }
             }
@@ -455,14 +526,27 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
             if (count($fieldLabel) == 1) {
               $fieldLabel = $fieldLabel[0];
             }
-        } else if($selectedProfileField["html_type"] == "Select Country" && $fieldValue!='') {
-          $countriesToFind[] = $fieldValue;
-        } else if($selectedProfileField["html_type"] == "Multi-Select Country" && $fieldValue!='') {
-          $countriesToFind = array_merge($countriesToFind, $fieldValue);
-        } else if($selectedProfileField["html_type"] == "Multi-Select State/Province" && $fieldValue!='') {
-          $statesToFind = array_merge($statesToFind, $fieldValue);
-        } else if($selectedProfileField["html_type"] == "Select State/Province" && $fieldValue!='') {
-          $statesToFind[] = $fieldValue;
+          }
+          else {
+            if ($selectedProfileField["html_type"] == "Select Country" && $fieldValue != '') {
+              $countriesToFind[] = $fieldValue;
+            }
+            else {
+              if ($selectedProfileField["html_type"] == "Multi-Select Country" && $fieldValue != '') {
+                $countriesToFind = array_merge($countriesToFind, $fieldValue);
+              }
+              else {
+                if ($selectedProfileField["html_type"] == "Multi-Select State/Province" && $fieldValue != '') {
+                  $statesToFind = array_merge($statesToFind, $fieldValue);
+                }
+                else {
+                  if ($selectedProfileField["html_type"] == "Select State/Province" && $fieldValue != '') {
+                    $statesToFind[] = $fieldValue;
+                  }
+                }
+              }
+            }
+          }
         }
       }
       if (($selectedProfileField['bao'] == $websiteFieldBAO) && isset($contact['websitefields'][$fieldtocheck])) {
@@ -470,8 +554,8 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
       }
       if (in_array($selectedProfileField['bao'], $addressFieldsBAO) && isset($contact['addressfields'][$fieldtocheck])) {
         $fieldValue = $contact['addressfields'][$fieldtocheck];
-        if(isset($contact['addressfields'][$fieldtocheck.'-label'])) {
-          $fieldLabel = $contact['addressfields'][$fieldtocheck.'-label'];
+        if (isset($contact['addressfields'][$fieldtocheck . '-label'])) {
+          $fieldLabel = $contact['addressfields'][$fieldtocheck . '-label'];
         }
       }
 
@@ -479,12 +563,12 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
         $fieldLabel = CRM_Utils_Date::customFormat($fieldValue, $selectedProfileField["smarty_view_format"]);
       }
 
-      $contacts["values"][$contactindex]["profilefields"][] = array(
+      $contacts["values"][$contactindex]["profilefields"][] = [
         'key' => $selectedProfileField["name"],
         'value' => $fieldValue,
         'html_type' => $selectedProfileField["html_type"],
         'label' => ($fieldLabel) ? $fieldLabel : $fieldValue,
-      );
+      ];
     }
   }
 
@@ -501,16 +585,17 @@ function _cca_group_contacts_add_profile_fields(&$contacts, $selectedProfileFiel
  * Return filtered custom profile fields.
  *
  * @param $profilefields
+ *
  * @return array
  */
 function _cca_selected_custom_profile_fields($profilefields) {
-    $customProfileFields = array();
-    foreach ($profilefields as $profilefield) {
-      if (isProfileFieldCustom($profilefield["name"])) {
-        $customProfileFields[] = $profilefield;
-      }
+  $customProfileFields = [];
+  foreach ($profilefields as $profilefield) {
+    if (isProfileFieldCustom($profilefield["name"])) {
+      $customProfileFields[] = $profilefield;
     }
-    return $customProfileFields;
+  }
+  return $customProfileFields;
 }
 
 /**
@@ -522,7 +607,7 @@ function _cca_group_contacts_add_address_fields(&$contacts) {
   $addressfieldskey = "addressfields";
   foreach ($contacts["values"] as $index => $contact) {
     if (!isset($contacts["values"][$index][$addressfieldskey])) {
-      $contacts["values"][$index][$addressfieldskey] = array();
+      $contacts["values"][$index][$addressfieldskey] = [];
     }
     if (isset($contact["api.Address.get"])) {
       $addresses = $contact["api.Address.get"]["values"];
@@ -533,14 +618,15 @@ function _cca_group_contacts_add_address_fields(&$contacts) {
         if (isset($address['location_type_id'])) {
           if ($address['is_primary']) {
             $secondarylocationid = $address['location_type_id'];
-          } else {
+          }
+          else {
             $locationid = $address['location_type_id'];
           }
         }
         $addressFields = _cca_group_contacts_get_address_fields($locationid, $address);
         $contacts["values"][$index][$addressfieldskey] = array_merge($contacts["values"][$index][$addressfieldskey], $addressFields);
 
-        if($secondarylocationid) {
+        if ($secondarylocationid) {
           $addressFields = _cca_group_contacts_get_address_fields($secondarylocationid, $address);
           $contacts["values"][$index][$addressfieldskey] = array_merge($contacts["values"][$index][$addressfieldskey], $addressFields);
         }
@@ -551,21 +637,21 @@ function _cca_group_contacts_add_address_fields(&$contacts) {
 }
 
 function _cca_group_contacts_get_address_fields($locationid, $address) {
-  return array(
-    'address_name-'.$locationid => (isset($address["name"])) ? $address["name"] : '',
-    'country-'.$locationid => (isset($address["country_id"])) ? $address["country_id"] : '',
-    'country-'.$locationid.'-label' => (isset($address["country_id.name"])) ? $address["country_id.name"] : '',
-    'county-'.$locationid => (isset($address["county_id"])) ? $address["county_id"] : '',
-    'county-'.$locationid.'-label' => (isset($address["county_id.name"])) ? $address["county_id.name"] : '',
-    'city-'.$locationid => (isset($address["city"])) ? $address["city"] : '',
-    'postal_code-'.$locationid => (isset($address["postal_code"])) ? $address["postal_code"] : '',
-    'state_province-'.$locationid => (isset($address["state_province_id"])) ? $address["state_province_id"] : '',
-    'state_province-'.$locationid.'-label' => (isset($address["state_province_id.name"])) ? $address["state_province_id.name"] : '',
-    'street_address-'.$locationid => (isset($address["street_address"])) ? $address["street_address"] : '',
-    'supplemental_address_1-'.$locationid => (isset($address["supplemental_address_1"])) ? $address["supplemental_address_1"] : '',
-    'supplemental_address_2-'.$locationid => (isset($address["supplemental_address_2"])) ? $address["supplemental_address_2"] : '',
-    'supplemental_address_3-'.$locationid => (isset($address["supplemental_address_3"])) ? $address["supplemental_address_3"] : '',
-  );
+  return [
+    'address_name-' . $locationid => (isset($address["name"])) ? $address["name"] : '',
+    'country-' . $locationid => (isset($address["country_id"])) ? $address["country_id"] : '',
+    'country-' . $locationid . '-label' => (isset($address["country_id.name"])) ? $address["country_id.name"] : '',
+    'county-' . $locationid => (isset($address["county_id"])) ? $address["county_id"] : '',
+    'county-' . $locationid . '-label' => (isset($address["county_id.name"])) ? $address["county_id.name"] : '',
+    'city-' . $locationid => (isset($address["city"])) ? $address["city"] : '',
+    'postal_code-' . $locationid => (isset($address["postal_code"])) ? $address["postal_code"] : '',
+    'state_province-' . $locationid => (isset($address["state_province_id"])) ? $address["state_province_id"] : '',
+    'state_province-' . $locationid . '-label' => (isset($address["state_province_id.name"])) ? $address["state_province_id.name"] : '',
+    'street_address-' . $locationid => (isset($address["street_address"])) ? $address["street_address"] : '',
+    'supplemental_address_1-' . $locationid => (isset($address["supplemental_address_1"])) ? $address["supplemental_address_1"] : '',
+    'supplemental_address_2-' . $locationid => (isset($address["supplemental_address_2"])) ? $address["supplemental_address_2"] : '',
+    'supplemental_address_3-' . $locationid => (isset($address["supplemental_address_3"])) ? $address["supplemental_address_3"] : '',
+  ];
 }
 
 /**
@@ -577,15 +663,15 @@ function _cca_group_contacts_add_website_fields(&$contacts) {
   $websitefieldskey = "websitefields";
   foreach ($contacts["values"] as $index => $contact) {
     if (!isset($contacts["values"][$index][$websitefieldskey])) {
-      $contacts["values"][$index][$websitefieldskey] = array();
+      $contacts["values"][$index][$websitefieldskey] = [];
     }
     if (isset($contact["api.Website.get"])) {
       $websites = $contact["api.Website.get"]["values"];
       foreach ($websites as $website) {
         $websitetypeid = $website['website_type_id'];
-        $websiteFields = array(
-          'url-'.$websitetypeid => (isset($website["url"])) ? $website["url"] : '',
-        );
+        $websiteFields = [
+          'url-' . $websitetypeid => (isset($website["url"])) ? $website["url"] : '',
+        ];
         $contacts["values"][$index][$websitefieldskey] = array_merge($contacts["values"][$index][$websitefieldskey], $websiteFields);
       }
       unset($contacts["values"][$index]["api.Website.get"]);
@@ -599,8 +685,8 @@ function _cca_group_contacts_add_website_fields(&$contacts) {
  * @param $contacts
  */
 function _cca_group_contacts_add_profile_fields_key(&$contacts) {
-  foreach($contacts["values"] as $index => $contact) {
-    $contacts["values"][$index]["profilefields"] = array();
+  foreach ($contacts["values"] as $index => $contact) {
+    $contacts["values"][$index]["profilefields"] = [];
   }
 }
 
@@ -610,7 +696,7 @@ function _cca_group_contacts_add_profile_fields_key(&$contacts) {
  * @param $contacts
  */
 function _cca_group_contacts_clean_contact_fiels(&$contacts) {
-  foreach($contacts["values"] as $index => $contact) {
+  foreach ($contacts["values"] as $index => $contact) {
     unset($contacts["values"][$index]["addressfields"]);
     unset($contacts["values"][$index]["websitefields"]);
   }
@@ -623,23 +709,23 @@ function _cca_group_contacts_clean_contact_fiels(&$contacts) {
  */
 function _cca_group_contacts_add_country_fields(&$contacts, $countries) {
   if (count($countries)) {
-    $countries = civicrm_api3("Country", "get" , array(
-      "id" => array("IN" => $countries),
-    ));
+    $countries = civicrm_api3("Country", "get", [
+      "id" => ["IN" => $countries],
+    ]);
 
     $countries = $countries["values"];
 
     foreach ($contacts["values"] as $index => $contact) {
-      foreach($contact["profilefields"] as $profilefieldindex => $profilefield) {
+      foreach ($contact["profilefields"] as $profilefieldindex => $profilefield) {
         if ($profilefield["html_type"] == "Select Country" && $profilefield["value"] != '' && array_key_exists($profilefield["value"], $countries)) {
-          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] =  $countries[$profilefield["value"]]["name"];
+          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = $countries[$profilefield["value"]]["name"];
         }
 
         if ($profilefield["html_type"] == "Multi-Select Country" && $profilefield["value"] != '') {
-          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = array();
+          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = [];
           foreach ($profilefield["value"] as $countryvalue) {
             if (array_key_exists($countryvalue, $countries)) {
-              $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"][] =  $countries[$countryvalue]["name"];
+              $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"][] = $countries[$countryvalue]["name"];
             }
           }
         }
@@ -655,29 +741,29 @@ function _cca_group_contacts_add_country_fields(&$contacts, $countries) {
  */
 function _cca_group_contacts_add_state_fields(&$contacts, $states) {
   if (count($states)) {
-    $states = civicrm_api3("StateProvince", "get" , array(
-        "id" => array("IN" => $states),
-    ));
+    $states = civicrm_api3("StateProvince", "get", [
+      "id" => ["IN" => $states],
+    ]);
 
     $states = $states["values"];
 
     foreach ($contacts["values"] as $index => $contact) {
-        foreach($contact["profilefields"] as $profilefieldindex => $profilefield) {
-            if ($profilefield["html_type"] == "Select State/Province" && $profilefield["value"] != '' && array_key_exists($profilefield["value"], $states)) {
-                $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] =  $states[$profilefield["value"]]["name"];
-            }
-
-            if ($profilefield["html_type"] == "Multi-Select State/Province" && $profilefield["value"] != '') {
-                $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = array();
-                foreach ($profilefield["value"] as $countryvalue) {
-                    if (array_key_exists($countryvalue, $states)) {
-                        $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"][] =  $states[$countryvalue]["name"];
-                    }
-                }
-            }
-
-            unset($contacts["values"][$index]["profilefields"][$profilefieldindex]["html_type"]);
+      foreach ($contact["profilefields"] as $profilefieldindex => $profilefield) {
+        if ($profilefield["html_type"] == "Select State/Province" && $profilefield["value"] != '' && array_key_exists($profilefield["value"], $states)) {
+          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = $states[$profilefield["value"]]["name"];
         }
+
+        if ($profilefield["html_type"] == "Multi-Select State/Province" && $profilefield["value"] != '') {
+          $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"] = [];
+          foreach ($profilefield["value"] as $countryvalue) {
+            if (array_key_exists($countryvalue, $states)) {
+              $contacts["values"][$index]["profilefields"][$profilefieldindex]["label"][] = $states[$countryvalue]["name"];
+            }
+          }
+        }
+
+        unset($contacts["values"][$index]["profilefields"][$profilefieldindex]["html_type"]);
+      }
     }
- }
+  }
 }

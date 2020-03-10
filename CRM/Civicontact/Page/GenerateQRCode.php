@@ -1,5 +1,7 @@
 <?php
+
 use CRM_Civicontact_ExtensionUtil as E;
+
 require_once 'lib/phpqrcode/qrlib.php';
 
 class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
@@ -12,15 +14,17 @@ class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
 
     $session = CRM_Core_Session::singleton();
     $isMe = ($contactID == $session->get('userID'));
-    if(!$isMe) {
+    if (!$isMe) {
       throw new \Civi\API\Exception\UnauthorizedException('You\'re not authorized to view this page.');
     }
 
     // Checksum
-    $hash = Civi::cache('long')->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID);
+    $hash = Civi::cache('long')
+      ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
     if (!$hash) {
       $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
-      Civi::cache('long')->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID, $hash, new DateInterval('P1D'));
+      Civi::cache('long')
+        ->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID, $hash, new DateInterval('P1D'));
     }
     Civi::log()->debug($hash);
 
@@ -28,9 +32,9 @@ class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
 
     $qr_code_pay_load = [
       "contact_id" => $contactID,
-      "checksum"   => $cs,
-      "site_key"   => CIVICRM_SITE_KEY,
-      "auth_url"   => CRM_Utils_System::url(
+      "checksum" => $cs,
+      "site_key" => CIVICRM_SITE_KEY,
+      "auth_url" => CRM_Utils_System::url(
         'civicrm/cca/auth',
         ['cid' => $contactID, 'cs' => $cs],
         TRUE,

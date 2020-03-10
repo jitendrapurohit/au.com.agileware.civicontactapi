@@ -1,4 +1,5 @@
 <?php
+
 use CRM_Civicontact_ExtensionUtil as E;
 
 class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
@@ -12,27 +13,29 @@ class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
     $contact = new CRM_Contact_BAO_Contact();
     $contact->id = $contactID;
 
-    if(!$contact->find(TRUE)) {
+    if (!$contact->find(TRUE)) {
       CRM_Core_Error::fatal(ts('Required cid parameter is invalid.'));
     }
 
     $session = CRM_Core_Session::singleton();
     $isMe = ($contactID == $session->get('userID'));
-    if(!$isMe) {
+    if (!$isMe) {
       throw new \Civi\API\Exception\UnauthorizedException('You\'re not authorized to view this page.');
     }
 
-    if(!$contact->api_key) {
-      $api_key = md5($contact->id.rand(100000,999999).time());
+    if (!$contact->api_key) {
+      $api_key = md5($contact->id . rand(100000, 999999) . time());
       $contact->api_key = $api_key;
       $contact->save();
     }
 
     // Checksum
-    $hash = Civi::cache('long')->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID);
+    $hash = Civi::cache('long')
+      ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
     if (!$hash) {
       $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
-      Civi::cache('long')->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX.$contactID, $hash, new DateInterval('P1D'));
+      Civi::cache('long')
+        ->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID, $hash, new DateInterval('P1D'));
     }
     Civi::log()->debug($hash);
 
@@ -40,20 +43,20 @@ class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
 
     $url = "https://civicontact.agileware.com.au?auth=" .
       urlencode(CRM_Utils_System::url(
-      'civicrm/cca/auth',
-      ['cid' => $contactID, 'cs' => $cs],
-      TRUE,
-      NULL,
-      FALSE,
-      TRUE
-    ));
+        'civicrm/cca/auth',
+        ['cid' => $contactID, 'cs' => $cs],
+        TRUE,
+        NULL,
+        FALSE,
+        TRUE
+      ));
 
     \Civi::log()->info(print_r($url, TRUE));
 
-    $title = E::ts('QR Code of ')." ".$contact->display_name;
+    $title = E::ts('QR Code of ') . " " . $contact->display_name;
     CRM_Utils_System::setTitle($title);
 
-    $this->assign('qrcode', $url = CRM_Utils_System::url( 'civicrm/contact/generate/qrcode', "cid=$contactID"));
+    $this->assign('qrcode', $url = CRM_Utils_System::url('civicrm/contact/generate/qrcode', "cid=$contactID"));
     $this->assign('login_url', $url);
     $this->assign('title', $title);
     parent::run();
