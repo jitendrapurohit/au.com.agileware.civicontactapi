@@ -16,9 +16,9 @@
     <url desc="CiviContact Android Application">https://play.google.com/store/apps/details?id=au.com.agileware.civicontact</url>
     <url desc="CiviContact iOS Application">https://notreleasedyet.com</url>
   </urls>
-  <releaseDate>2020-01-13</releaseDate>
-  <version>0.3.2</version>
-  <versioncode>7</versioncode>
+  <releaseDate>2020-03-10</releaseDate>
+  <version>0.3.3</version>
+  <versioncode>8</versioncode>
   <develStage>beta</develStage>
   <compatibility>
     <ver>5.0</ver>
