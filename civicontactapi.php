@@ -288,6 +288,9 @@ function getCCAActiveGroups($groupsToCheck = [], $withName = FALSE) {
     'sequential' => 1,
     'return' => ["id", "title"],
     $cca_sync_custom_key => 1,
+    'options' => [
+      'limit' => 0,
+    ],
   ];
   if (count($groupsToCheck)) {
     $group_params["id"] = ["IN" => $groupsToCheck];
@@ -309,6 +312,9 @@ function getGroupDetailsByIds($groupids, $returnDirectResponse = FALSE) {
     'return' => ["id", "title"],
     'id' => ["IN" => $groupids],
     'api.Contact.getcount' => ['group' => "\$value.id"],
+    'options' => [
+      'limit' => 0,
+    ],
   ];
   $group_ids = civicrm_api3('Group', 'get', $group_params);
   if (!$returnDirectResponse) {

@@ -53,7 +53,7 @@ function civicrm_api3_relationship_Favourites($params) {
       'contact_id_a' => $contactID,
       'relationship_type_id' => $relationshiptype["id"],
       'sequential' => $sequential,
-      'options' => ['sort' => "id DESC"],
+      'options' => ['sort' => "id DESC", 'limit' => 0],
     ];
     $relation = civicrm_api3('Relationship', 'get', $apiparams);
     $currentDateTime = new \DateTime();

@@ -72,6 +72,7 @@ function civicrm_api3_c_c_a_group_contacts_log_countcontact($params) {
   $params["group"] = ['IN' => getCCAActiveGroups()];
   $params['first_name'] = ['IS NOT NULL' => 1];
   $params['return'] = ['id'];
+  $params['options'] = ['limit' => 0];
   $contacts = civicrm_api3('Contact', 'get', $params);
   $ids = [];
   if (!$contacts['is_error']) {
@@ -100,7 +101,7 @@ function civicrm_api3_c_c_a_group_contacts_log_getmodifiedcontacts($params) {
       'sequential' => 1,
       'return' => ["groupid", "action", "groupid.title"],
       'createdat' => $params["createdat"],
-      'options' => ['sort' => "id DESC"],
+      'options' => ['sort' => "id DESC", 'limit' => 0],
     ];
 
     $uniqueGroups = [];
@@ -286,6 +287,9 @@ function getCCAModifiedContactIds($createdat) {
     'IN' => $group_ids,
     'return' => 'id',
     'sequential' => TRUE,
+    'options' => [
+      'limit' => 0,
+    ],
     'modified_date' => $createdat,
   ]);
 
@@ -347,6 +351,9 @@ function getContacts($params = [], $bycontactids = FALSE, $contactids = []) {
 
   $contactparams = [
     'sequential' => 1,
+    'options' => [
+      'limit' => 0,
+    ],
     'return' => [
       "first_name",
       "last_name",
@@ -711,6 +718,9 @@ function _cca_group_contacts_add_country_fields(&$contacts, $countries) {
   if (count($countries)) {
     $countries = civicrm_api3("Country", "get", [
       "id" => ["IN" => $countries],
+      'options' => [
+        'limit' => 0,
+      ],
     ]);
 
     $countries = $countries["values"];
@@ -743,6 +753,9 @@ function _cca_group_contacts_add_state_fields(&$contacts, $states) {
   if (count($states)) {
     $states = civicrm_api3("StateProvince", "get", [
       "id" => ["IN" => $states],
+      'options' => [
+        'limit' => 0,
+      ],
     ]);
 
     $states = $states["values"];

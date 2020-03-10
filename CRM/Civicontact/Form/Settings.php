@@ -181,6 +181,9 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
         $customFieldsToCheck = civicrm_api3("CustomField", "get", [
           'id' => ['IN' => $customFieldIds],
           'sequential' => TRUE,
+          'options' => [
+            'limit' => 0,
+          ],
         ]);
 
         $customFieldsToCheck = $customFieldsToCheck["values"];
@@ -277,6 +280,9 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       'option_group_id' => "activity_type",
       'component_id' => ['IS NULL' => 1],
       'is_active' => 1,
+      'options' => [
+        'limit' => 0,
+      ],
     ]);
     $clickActions = [];
     foreach ($activityTypes["values"] as $activityType) {
@@ -297,6 +303,9 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
       'option_group_id' => "activity_type",
       'component_id' => ['IS NULL' => 1],
       'is_active' => 1,
+      'options' => [
+        'limit' => 0,
+      ],
     ]);
     $activityTypeOptions = [];
     foreach ($activityTypes["values"] as $activityType) {
@@ -314,6 +323,9 @@ class CRM_Civicontact_Form_Settings extends CRM_Core_Form {
     $ufGroups = civicrm_api3('UFGroup', 'get', [
       'sequential' => 1,
       'is_active' => 1,
+      'options' => [
+        'limit' => 0,
+      ],
     ]);
     $ufGroupOptions = ["0" => "- None -"];
     foreach ($ufGroups["values"] as $ufGroup) {
