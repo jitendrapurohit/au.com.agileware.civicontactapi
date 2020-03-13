@@ -46,6 +46,9 @@ class CRM_Civicontact_Utils_Authentication {
 			'sequential' => 1,
 			'option_group_id' => "from_email_address",
 			'is_active' => 1,
+      'options' => [
+        'limit' => 0,
+      ],
 		] );
 		// no from address - skip
 		if ( ! $from['count'] ) {

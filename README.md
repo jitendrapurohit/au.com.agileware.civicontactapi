@@ -15,6 +15,10 @@ CiviContact source code is available on [https://github.com/agileware/au.com.agi
 2. Install the CiviContact extension to the CiviCRM extensions directory to a new **civicontact** sub-directory
 3. Enable the CiviContact extension in CiviCRM on the Extensions page
 
+### CiviCRM Base URL needs to be set
+
+CiviContact needs to know the URL of the CiviCRM site. So make sure that the base URL of the CiviCRM site is set correctly in the civicrm.settings.php. If this is not set or incorrect, then CiviContact authentication will fail.
+
 ### Patch required for CiviCRM on WordPress 
 
 For WordPress websites with CiviCRM installed, please download and apply this patch to CiviCRM: [rest-wp.patch](rest-wp.patch)

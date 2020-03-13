@@ -8,12 +8,12 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     // Get info from url parameters
     try {
       $contactID = CRM_Utils_Request::retrieve('cid', 'Integer');
-      $cs        = CRM_Utils_Request::retrieve('cs', 'Text');
+      $cs = CRM_Utils_Request::retrieve('cs', 'Text');
     } catch (CRM_Core_Exception $e) {
       http_response_code(400);
       CRM_Utils_JSON::output(
         [
-          'error'   => 1,
+          'error' => 1,
           'message' => 'Parameters missing.',
         ]
       );
@@ -34,7 +34,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     ) {
       CRM_Utils_JSON::output(
         [
-          'error'   => 1,
+          'error' => 1,
           'message' => 'Failed to authenticate. Please generate a new QR code.',
         ]
       );
@@ -45,7 +45,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     //    ->delete(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
 
     // Passed all validation
-    $contact     = new CRM_Contact_BAO_Contact();
+    $contact = new CRM_Contact_BAO_Contact();
     $contact->id = $contactID;
 
     if (!$contact->find(TRUE)) {
@@ -53,7 +53,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     }
 
     if (!$contact->api_key) {
-      $api_key          = md5($contact->id . rand(100000, 999999) . time());
+      $api_key = md5($contact->id . rand(100000, 999999) . time());
       $contact->api_key = $api_key;
       $contact->save();
     }
@@ -75,7 +75,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       "Group",
       "get",
       [
-        "name"       => "CiviContact",
+        "name" => "CiviContact",
         "sequential" => TRUE,
       ]
     );
@@ -85,16 +85,24 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
       $groupid = $group["values"][0]["id"];
     }
 
+    // Get Google analytics settings
+    $gaResult = civicrm_api3('Setting', 'get', [
+      'sequential' => 1,
+      'return' => ["cca_client_google_analytics"],
+    ]);
+    $gaResult = array_shift($gaResult['values'])['cca_client_google_analytics'];
+
     CRM_Utils_JSON::output(
       [
-        'error'          => 0,
-        "contact_id"     => $contactID,
-        'api_key'        => $contact->api_key,
-        "contact_name"   => $contact->display_name,
-        "site_key"       => CIVICRM_SITE_KEY,
+        'error' => 0,
+        "contact_id" => $contactID,
+        'api_key' => $contact->api_key,
+        "contact_name" => $contact->display_name,
+        "site_key" => CIVICRM_SITE_KEY,
         "rest_end_point" => $restendpoint,
-        "groupid"        => $groupid,
-        "domain_name"    => $_SERVER['SERVER_NAME'],
+        "groupid" => $groupid,
+        "domain_name" => $_SERVER['SERVER_NAME'],
+        'cca_client_google_analytics' => $gaResult,
       ]
     );
     exit();
