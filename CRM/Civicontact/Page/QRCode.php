@@ -30,14 +30,7 @@ class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
     }
 
     // Checksum
-    $hash = Civi::cache('long')
-      ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
-    if (!$hash) {
-      $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
-      Civi::cache('long')
-        ->set(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID, $hash, new DateInterval('P1D'));
-    }
-    Civi::log()->debug($hash);
+    $hash = CRM_Civicontact_Utils_Authentication::getCCAHash($contactID);
 
     $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum($contact->id, NULL, 24, $hash);
 

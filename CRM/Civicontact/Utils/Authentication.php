@@ -133,7 +133,7 @@ class CRM_Civicontact_Utils_Authentication {
   public static function invalidateAuthentication() {
     // drop API keys
     $settings = self::getSettings();
-    foreach (array_keys($settings['users']) as $id) {
+    foreach (array_keys($settings['users']) as $id => $info) {
       $contact     = new CRM_Contact_BAO_Contact();
       $contact->id = $id;
       $contact->find(TRUE);
@@ -224,17 +224,7 @@ class CRM_Civicontact_Utils_Authentication {
     }
 
     // Checksum
-    $hash = Civi::cache('long')->get(
-      CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactId
-    );
-    if (!$hash) {
-      $hash = CRM_Civicontact_Utils_Authentication::generate_hash();
-      Civi::cache('long')->set(
-        CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactId,
-        $hash,
-        new DateInterval('P1D')
-      );
-    }
+    $hash = self::getCCAHash($contactId);
 
     $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum(
       $contact->id,
@@ -255,6 +245,20 @@ class CRM_Civicontact_Utils_Authentication {
         )
       );
     return $url;
+  }
+
+  public static function getCCAHash($contactID) {
+    $settings = self::getSettings();
+    if (!$settings['users'][$contactID]) {
+      $settings['users'][$contactID] = [];
+    }
+    $hash = $settings['users'][$contactID]['hash'];
+    if (!$hash) {
+      $hash = self::generate_hash();
+      $settings['users'][$contactID]['hash'] = $hash;
+      self::saveSettings($settings);
+    }
+    return $hash;
   }
 
   public static function addCORSHeader() {
