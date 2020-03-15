@@ -30,9 +30,7 @@ class CRM_Civicontact_Page_QRCode extends CRM_Core_Page {
     }
 
     // Checksum
-    $hash = CRM_Civicontact_Utils_Authentication::getCCAHash($contactID);
-
-    $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum($contact->id, NULL, 24, $hash);
+    $cs = CRM_Civicontact_Utils_Authentication::generateChecksum($contact->id);
 
     $url = "https://civicontact.agileware.com.au?auth=" .
       urlencode(CRM_Utils_System::url(

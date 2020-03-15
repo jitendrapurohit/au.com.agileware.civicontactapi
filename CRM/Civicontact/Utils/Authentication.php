@@ -17,65 +17,67 @@ class CRM_Civicontact_Utils_Authentication {
   const ORIGINS
     = [
       'ionic://localhost',
-      'http://localhost'
+      'http://localhost',
     ];
 
-	/**
-	 * called by path civicrm/cca/email
-	 * @throws \CRM_Core_Exception
-	 * @throws \CiviCRM_API3_Exception
-	 */
-	public static function sendMail() {
-		$id = CRM_Utils_Request::retrieve( 'id', 'Positive' );
-		$contact = civicrm_api3( 'Contact', 'get', [
-			'id' => $id
-		] );
-		// no contact or multiple contacts should be skipped
-		if ( $contact['count'] !== 1 ) {
-			CRM_Core_Session::setStatus( E::ts( 'Incorrect Contact ID.' ), 'CiviContact', 'error' );
-			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
-		}
-		$contact = array_shift( $contact['values'] );
-		// no primary email - skip
-		if ( ! $contact['email'] ) {
-			CRM_Core_Session::setStatus( E::ts( 'There is no email address set for this Contact.' ), 'CiviContact', 'error' );
-			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
-		}
-		$email = [];
-		$from = civicrm_api3( 'OptionValue', 'get', [
-			'sequential' => 1,
-			'option_group_id' => "from_email_address",
-			'is_active' => 1,
+  /**
+   * called by path civicrm/cca/email
+   *
+   * @throws \CRM_Core_Exception
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function sendMail() {
+    $id = CRM_Utils_Request::retrieve('id', 'Positive');
+    $contact = civicrm_api3('Contact', 'get', [
+      'id' => $id,
+    ]);
+    // no contact or multiple contacts should be skipped
+    if ($contact['count'] !== 1) {
+      CRM_Core_Session::setStatus(E::ts('Incorrect Contact ID.'), 'CiviContact', 'error');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', ['cid' => $id]));
+    }
+    $contact = array_shift($contact['values']);
+    // no primary email - skip
+    if (!$contact['email']) {
+      CRM_Core_Session::setStatus(E::ts('There is no email address set for this Contact.'), 'CiviContact', 'error');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', ['cid' => $id]));
+    }
+    $email = [];
+    $from = civicrm_api3('OptionValue', 'get', [
+      'sequential' => 1,
+      'option_group_id' => "from_email_address",
+      'is_active' => 1,
       'options' => [
         'limit' => 0,
       ],
-		] );
-		// no from address - skip
-		if ( ! $from['count'] ) {
-			CRM_Core_Session::setStatus( E::ts( 'CiviCRM has no From Email Address set. Please set this option and try again.' ), 'CiviContact', 'error' );
-			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
-		}
-		$from = array_shift( $from['values'] );
-		$email['from'] = $from['label'];
-		// message body
-		$template = CRM_Core_Smarty::singleton();
-		$template->assign( 'auth_url', self::generateAuthURL( $id ) );
-		// more variables
-		$email['html'] = $template->fetch( 'string:'.file_get_contents( E::path( 'templates/CRM/Civicontact/email.tpl' ) ) );
+    ]);
+    // no from address - skip
+    if (!$from['count']) {
+      CRM_Core_Session::setStatus(E::ts('CiviCRM has no From Email Address set. Please set this option and try again.'), 'CiviContact', 'error');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', ['cid' => $id]));
+    }
+    $from = array_shift($from['values']);
+    $email['from'] = $from['label'];
+    // message body
+    $template = CRM_Core_Smarty::singleton();
+    $template->assign('auth_url', self::generateAuthURL($id));
+    // more variables
+    $email['html'] = $template->fetch('string:' . file_get_contents(E::path('templates/CRM/Civicontact/email.tpl')));
 
-		$email['toName'] = $contact['display_name'];
-		$email['toEmail'] = $contact['email'];
-		$email['subject'] = E::ts( 'CiviContact set up instructions' );
+    $email['toName'] = $contact['display_name'];
+    $email['toEmail'] = $contact['email'];
+    $email['subject'] = E::ts('CiviContact set up instructions');
 
-		if (CRM_Utils_Mail::send( $email )) {
-			CRM_Core_Session::setStatus( E::ts( 'CiviContact authentication email sent.' ), 'CiviContact', 'success' );
-			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
-		} else {
-			CRM_Core_Session::setStatus( E::ts( 'Unknown error - CiviContact authentication email not sent.' ), 'CiviContact', 'error' );
-			CRM_Utils_System::redirect( CRM_Utils_System::url(  'civicrm/contact/view', [ 'cid' => $id ] ) );
+    if (CRM_Utils_Mail::send($email)) {
+      CRM_Core_Session::setStatus(E::ts('CiviContact authentication email sent.'), 'CiviContact', 'success');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', ['cid' => $id]));
+    }
+    else {
+      CRM_Core_Session::setStatus(E::ts('Unknown error - CiviContact authentication email not sent.'), 'CiviContact', 'error');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contact/view', ['cid' => $id]));
 
-		}
-	}
+    }
+  }
 
   /**
    * Generate a hash string
@@ -89,7 +91,7 @@ class CRM_Civicontact_Utils_Authentication {
   /**
    * Make sure the checksum is valid for the passed in contactID.
    *
-   * @param int    $contactID
+   * @param int $contactID
    * @param string $inputCheck
    *   Checksum to match against.
    * @param string $hash
@@ -128,13 +130,55 @@ class CRM_Civicontact_Utils_Authentication {
   }
 
   /**
+   * Wrap of the core's function
+   * the live time by default is set by the settings
+   *
+   * @param $entityId
+   * @param null $ts
+   * @param null $live number of hours or null to get it from the settings
+   * @param null $hash the cca hash by default
+   * @param string $entityType
+   * @param null $hashSize
+   *
+   * @return array
+   */
+  public static function generateChecksum(
+    $entityId,
+    $ts = NULL,
+    $live = NULL,
+    $hash = NULL,
+    $entityType = 'contact',
+    $hashSize = NULL) {
+    // default live time
+    if (!$live) {
+      try {
+        $timeout = civicrm_api3('Setting', 'get', [
+          'sequential' => 1,
+          'return' => ["cca_checksum_timeout"],
+        ]);
+        $timeout = array_shift($timeout['values'])['cca_checksum_timeout'];
+      } catch (CiviCRM_API3_Exception $e) {
+        $timeout = 1;
+      }
+      $days = 24 * $timeout;
+      $live = $days > 0 ? $days : 24;
+    }
+    // default hash
+    if (!$hash && $entityType == 'contact') {
+      self::getCCAHash($entityId);
+    }
+
+    return CRM_Contact_BAO_Contact_Utils::generateChecksum($entityId, $ts, $live, $hash, $entityType, $hashSize);
+  }
+
+  /**
    * Drop API key for all users who are using the Mobile App
    */
   public static function invalidateAuthentication() {
     // drop API keys
     $settings = self::getSettings();
     foreach (array_keys($settings['users']) as $id => $info) {
-      $contact     = new CRM_Contact_BAO_Contact();
+      $contact = new CRM_Contact_BAO_Contact();
       $contact->id = $id;
       $contact->find(TRUE);
       $contact->api_key = NULL;
@@ -166,7 +210,7 @@ class CRM_Civicontact_Utils_Authentication {
    */
   public static function updateIP($contactID) {
     $settings = self::getSettings();
-    $ip       = $_SERVER['REMOTE_ADDR'];
+    $ip = $_SERVER['REMOTE_ADDR'];
     if (!$settings['users'][$contactID]) {
       $settings['users'][$contactID] = [];
     }
@@ -182,7 +226,7 @@ class CRM_Civicontact_Utils_Authentication {
    */
   public static function deleteUserInRecord($contactID = NULL) {
     $settings = self::getSettings();
-    $ids      = array_keys($settings['users']);
+    $ids = array_keys($settings['users']);
     if (isset($contactID) || in_array($contactID, $ids)) {
       $ids = [$contactID];
     }
@@ -209,7 +253,7 @@ class CRM_Civicontact_Utils_Authentication {
       return "";
     }
 
-    $contact     = new CRM_Contact_BAO_Contact();
+    $contact = new CRM_Contact_BAO_Contact();
     $contact->id = $contactId;
 
     if (!$contact->find(TRUE)) {
@@ -218,20 +262,13 @@ class CRM_Civicontact_Utils_Authentication {
     }
 
     if (!$contact->api_key) {
-      $api_key          = md5($contact->id . rand(100000, 999999) . time());
+      $api_key = md5($contact->id . rand(100000, 999999) . time());
       $contact->api_key = $api_key;
       $contact->save();
     }
 
     // Checksum
-    $hash = self::getCCAHash($contactId);
-
-    $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum(
-      $contact->id,
-      NULL,
-      24,
-      $hash
-    );
+    $cs = self::generateChecksum($contact->id);
 
     $url = "https://civicontact.com.au/login?auth=" .
       urlencode(
@@ -247,6 +284,13 @@ class CRM_Civicontact_Utils_Authentication {
     return $url;
   }
 
+  /**
+   * The hash key used by cca checksum
+   *
+   * @param $contactID
+   *
+   * @return mixed|string
+   */
   public static function getCCAHash($contactID) {
     $settings = self::getSettings();
     if (!$settings['users'][$contactID]) {

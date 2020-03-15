@@ -19,9 +19,7 @@ class CRM_Civicontact_Page_GenerateQRCode extends CRM_Core_Page {
     }
 
     // Checksum
-    $hash = CRM_Civicontact_Utils_Authentication::getCCAHash($contactID);
-
-    $cs = CRM_Contact_BAO_Contact_Utils::generateChecksum($contact->id, NULL, 24, $hash);
+    $cs = CRM_Civicontact_Utils_Authentication::generateChecksum($contact->id);
 
     $qr_code_pay_load = [
       "contact_id" => $contactID,
