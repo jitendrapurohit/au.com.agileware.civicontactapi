@@ -305,6 +305,18 @@ class CRM_Civicontact_Utils_Authentication {
     return $hash;
   }
 
+  /**
+   * Unset the hash to invalidate the checksum
+   * @param $contactID
+   */
+  public static function unsetCCAHash($contactID) {
+    $settings = self::getSettings();
+    if (!$settings['users'][$contactID]) {
+      return;
+    }
+    unset($settings['users'][$contactID]['hash']);
+  }
+
   public static function addCORSHeader() {
     foreach ($_SERVER as $key => $value) {
       if ($key == 'HTTP_ORIGIN') {
