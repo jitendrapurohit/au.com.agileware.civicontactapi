@@ -1,19 +1,14 @@
 # CiviContact API (au.com.agileware.civicontactapi)
 
-This is a [CiviCRM](https://civicrm.org) extension required for the [CiviContact application](https://civicontact.com.au) for iOS and Android. Find out more about about CiviContact at [civicontact.com.au](https://civicontact.com.au)
+This is a [CiviCRM](https://civicrm.org) extension required for the [CiviContact mobile application](https://civicontact.com.au) for iOS and Android. Find out more about about CiviContact at [civicontact.com.au](https://civicontact.com.au)
 
-This extension **must** be installed in CiviCRM for the CiviContact app to function.
+This extension **must** be installed in CiviCRM for the CiviContact mobile application to function.
 
-## CiviContact 
+## CiviContact mobile application 
 
-As of **15th January 2020**, the CiviContact app is only available to **registered testers** in the iTunes and Google Play Store.
-If you would  like to be a CiviContact app tester then please email [civicontact@agileware.com.au](mailto:civicontact@agileware.com.au) and tell us:
-1. Which device you are using either: [Android](https://www.android.com/) or [iPhone](https://apple.com/iphone)
-2. The email address you use to login to [iTunes](https://apple.com/itunes) or the [Google Play Store](https://play.google.com/)
+The CiviContact mobile application is available for both Android and iOS on [Google Play](https://play.google.com./store/apps/details?id=au.com.agileware.civicontact) and [Apple App Store](https://www.apple.com/itunes/).
 
-When you become a tester we will email you and ask for your feedback on the app. We are interested in hearing about both improvements and any bugs you may find.
-
-We expect do a public release of the CiviContact app in **February 2020**. 
+CiviContact source code is available on [https://github.com/agileware/au.com.agileware.civicontact](https://github.com/agileware/au.com.agileware.civicontact)
 
 ## Installation
 1. Download the [CiviContactAPI extension](https://github.com/agileware/au.com.agileware.civicontactapi/archive/master.zip).
@@ -111,15 +106,11 @@ Add your custom CiviCRM fields to the CiviContact profile to enable your users t
 
 For example, setting up two virtual CiviTeams, CiviTeam A can access Group 1 and Group 2 using CiviContact, CiviTeam B can access Group 3 and Group 4.
 
+## About the Authors
 
-About the Authors
------------------
+CiviContact mobile application and CiviContactAPI was developed by the team at [Agileware](https://agileware.com.au).
 
-This CiviCRM extension was developed by the team at
-[Agileware](https://agileware.com.au).
-
-[Agileware](https://agileware.com.au) provide a range of CiviCRM services
-including:
+[Agileware](https://agileware.com.au) provide a range of CiviCRM services including:
 
   * CiviCRM migration
   * CiviCRM integration
@@ -127,9 +118,8 @@ including:
   * CiviCRM support
   * CiviCRM hosting
   * CiviCRM remote training services
+  * And of course, CiviContact development and support
 
-Support your Australian [CiviCRM](https://civicrm.org) developers, [contact
-Agileware](https://agileware.com.au/contact) today!
-
+Support your Australian [CiviCRM](https://civicrm.org) developers, [contact Agileware](https://agileware.com.au/contact) today!
 
 ![Agileware](logo/agileware-logo.png)
