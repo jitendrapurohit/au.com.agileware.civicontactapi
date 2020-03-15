@@ -139,5 +139,21 @@ return array(
     'html_attributes' => array(),
     'help_text' => '',
   ),
+  'cca_checksum_timeout' => array(
+    'group_name' => 'CiviContact Settings',
+    'group' => 'cca',
+    'name' => 'cca_checksum_timeout',
+    'type' => 'String',
+    'add' => '4.7',
+    'quick_form_type' => 'Element',
+    'html_type' => 'text',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'default' => '1',
+    'description' => '',
+    'title' => 'Login checksum live time',
+    'html_attributes' => array(),
+    'help_text' => 'The number of days for a valid login URL|QRCode.',
+  ),
 
 );
