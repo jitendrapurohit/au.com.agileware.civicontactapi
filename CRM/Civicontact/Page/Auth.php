@@ -21,8 +21,7 @@ class CRM_Civicontact_Page_Auth extends CRM_Core_Page {
     }
     CRM_Civicontact_Utils_Authentication::addCORSHeader();
 
-    $hash = Civi::cache('long')
-      ->get(CRM_Civicontact_Utils_Authentication::HASH_PREFIX . $contactID);
+    $hash = CRM_Civicontact_Utils_Authentication::getCCAHash($contactID);
 
     // Validate checksum
     if (!$hash

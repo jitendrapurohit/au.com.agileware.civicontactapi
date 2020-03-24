@@ -108,7 +108,7 @@ class CRM_Civicontact_Utils_Authentication {
     $inputTS = CRM_Utils_Array::value(1, $input);
     $inputLF = CRM_Utils_Array::value(2, $input);
 
-    $check = CRM_Contact_BAO_Contact_Utils::generateChecksum(
+    $check = self::generateChecksum(
       $contactID,
       $inputTS,
       $inputLF,
@@ -165,7 +165,7 @@ class CRM_Civicontact_Utils_Authentication {
     }
     // default hash
     if (!$hash && $entityType == 'contact') {
-      self::getCCAHash($entityId);
+      $hash = self::getCCAHash($entityId);
     }
 
     return CRM_Contact_BAO_Contact_Utils::generateChecksum($entityId, $ts, $live, $hash, $entityType, $hashSize);
