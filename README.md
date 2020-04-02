@@ -69,7 +69,7 @@ On this page you can configure:
 * **Email to Activity**: if enabled this option will automatically record activity when the user emails any contact from CiviContact.
 * **Favourite Tile Click Action**: the default action to be executed when a Favourite Contact tile is clicked, actions can be either: Create Email or Create Phone Call. CiviContact will skip the phone or email action if there is no phone or email available for the Contact.
 * **Contact Activity types**: the activity types which are listed in the "Activities" for a Contact.
-* **Contact Profile**: select the CiviCRM Profile to be used for displaying the fields on the add, view end edit pages in CiviContact. By default this is set to the CiviContact Profile.
+* **Contact Profile**: select the CiviCRM Profile to be used for displaying the fields on the add, view and edit pages in CiviContact. This should only have fields which can be used for Contacts.
 * **Sync Interval**: determines how often CiviContact should sync with the CiviCRM site.
 * **Reset QR Code**: re-generate QR Codes for all users.
 * **Drop Authentication**: immediately invalidate all existing user CiviContact authentication, requiring all users to re-authenticate. 
@@ -89,14 +89,12 @@ Any changes to the Group in CiviCRM will be reflected in CiviContact automatical
 
 When the CiviContact API extension is installed, a new CiviCRM Group **CiviContact** is added. When new Contacts are added in CiviContact, each Contact will be automatically added to this Group in CiviCRM.
 
-### Default profile for CiviContact
-
-When the CiviContact API extension is installed, a new CiviCRM profile **CiviContact** is added.
-This profile is intended to be used to add new fields to CiviContact, rename existing fields, re-order fields and remove fields, enabling you to fully customise the CiviContact user interface without any coding required.
-
 ## Customising CiviContact
 
-Add your custom CiviCRM fields to the CiviContact profile to enable your users to view and update information specific to your requirements.
+We recommend that you create a CiviCRM Profile for CiviContact with a name of **CiviContact**.
+You can then use the CiviContact Profile to add new fields to CiviContact, enabling you to fully customise the CiviContact user interface without any coding required.
+
+Add your custom CiviCRM fields to the CiviContact Profile to enable your users to view and update information specific to your requirements.
 
 **[Summary Fields](https://civicrm.org/extensions/summary-fields)** make it easier to search for major donors, recent donors, lapsed donors as well as to show a synopsis of a donor’s history. CiviContact supports the following CiviCRM extensions:
 * [Summary Fields](https://civicrm.org/extensions/summary-fields)
