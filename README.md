@@ -114,13 +114,14 @@ You can also add custom CiviCRM fields to the CiviContact profile to enable your
 
 ### Compatible CiviCRM Extensions
 
-**[Summary Fields](https://civicrm.org/extensions/summary-fields)** make it easier to search for major donors, recent donors, lapsed donors as well as to show a synopsis of a donor’s history. CiviContact supports the following CiviCRM extensions:
+CiviContact supports the following CiviCRM extensions:
 * [Summary Fields](https://civicrm.org/extensions/summary-fields)
 * [Joinerys More Summary Fields](https://civicrm.org/extensions/joinerys-more-summary-fields)
+* [CiviTeams integration](https://github.com/agileware/au.com.agileware.civiteams)
 
-**[CiviTeams integration](https://github.com/agileware/au.com.agileware.civiteams)** enables you to easily segment your users into virtual teams and precisely control which Contacts and Groups are available in CiviContact.
+**[Summary Fields](https://civicrm.org/extensions/summary-fields)** make it easier to search for major donors, recent donors, lapsed donors as well as to show a synopsis of a donor’s history.
 
-For example, setting up two virtual CiviTeams, CiviTeam A can access Group 1 and Group 2 using CiviContact, CiviTeam B can access Group 3 and Group 4.
+**[CiviTeams integration](https://github.com/agileware/au.com.agileware.civiteams)** enables you to easily segment your users into virtual teams and precisely control which Contacts and Groups are available in CiviContact. For example, setting up two virtual CiviTeams, CiviTeam A can access Group 1 and Group 2 using CiviContact, CiviTeam B can access Group 3 and Group 4.
 
 ## About the Authors
 
