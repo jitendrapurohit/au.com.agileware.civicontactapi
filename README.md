@@ -19,6 +19,19 @@ CiviContact source code is available on [https://github.com/agileware/au.com.agi
 
 CiviContact needs to know the URL of the CiviCRM site. So make sure the CiviCRM base URL is defined in the civicrm.settings.php. If this is not set or incorrect, then CiviContact authentication will fail.
 
+### CiviCRM County field is required
+
+There have been reports of [CiviContact Settings page not saving](https://github.com/agileware/au.com.agileware.civicontactapi/issues/3) and instead displaying the following error: _'county' is not a valid option for field field_name_
+
+Depending on the localisation of your CiviCRM, this field may be displayed in CiviCRM as either: County, Shire or some other name in your selected locale.
+For simplicity, we will refer to this as the **County** field. 
+
+This error occurs when the **County** field in CiviCRM has been disabled, this field must be enabled for CiviContact to work correctly.
+
+Go to **Administer CiviCRM -> Localization -> Address Settings** and in the section **Address Editing, Address Fields**, enable the **County** option.
+
+If the **County** field is not enabled then any API requests for the County field will be rejected by the CiviCRM and instead return an error response. 
+
 ### Patch required for CiviCRM on WordPress 
 
 For WordPress websites with CiviCRM installed, please download and apply this patch to CiviCRM: [rest-wp.patch](rest-wp.patch)
