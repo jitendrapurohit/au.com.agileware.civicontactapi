@@ -42,7 +42,7 @@ function civicrm_api3_relationship_Favourites($params) {
   ]);
 
   if ($relationshiptype["count"] == 0) {
-    $relationshiptype = createFavouriteRelationshipType();
+    $relationshiptype = CRM_Civicontact_Utils_Favourites::createFavouriteRelationshipType();
   }
   else {
     $relationshiptype = $relationshiptype["values"][0];
