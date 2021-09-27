@@ -741,7 +741,6 @@ function civicontactapi_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
 }
 
 function civicontactapi_civicrm_tokens(&$tokens) {
-  Civi::log()->info(print_r($tokens, TRUE));
   $tokens['civicontact'] = ['civicontact.authUrl' => ts('CiviContact authentication URL')];
 }
 
